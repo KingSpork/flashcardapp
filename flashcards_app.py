@@ -8,10 +8,11 @@
 #     Each deck is saved as: <topic_name>.json
 #
 # JSON format:
-#     Each deck file contains a JSON list of flashcard objects with exactly:
+#     Each deck file contains a JSON list of flashcard objects with:
 #     {
 #         "question": "<string>",
-#         "answer": "<string>"
+#         "answer": "<string>",
+#         "explanation": "<string, optional>"
 #     }
 
 from __future__ import annotations
@@ -20,7 +21,7 @@ import json
 import random
 import tkinter as tk
 from pathlib import Path
-from tkinter import messagebox, ttk
+from tkinter import filedialog, messagebox, ttk
 from typing import Any
 
 
@@ -28,15 +29,25 @@ class DeckStorage:
     # Manage deck file persistence using JSON files.
 
     def __init__(self, base_dir: Path) -> None:
-        self.decks_dir = base_dir / "decks"
-        self.decks_dir.mkdir(exist_ok=True)
+        self.set_decks_dir(base_dir / "decks")
+
+    def set_decks_dir(self, decks_dir: Path) -> None:
+        self.decks_dir = decks_dir
+        self.decks_dir.mkdir(parents=True, exist_ok=True)
+
+    def _normalize_topic_name(self, topic_name: str) -> str:
+        normalized = topic_name.strip()
+        if normalized.lower().endswith(".json"):
+            normalized = normalized[:-5]
+        return normalized
 
     def list_decks(self) -> list[str]:
         # Return deck names (without .json extension), sorted alphabetically.
         return sorted(path.stem for path in self.decks_dir.glob("*.json") if path.is_file())
 
     def _deck_path(self, topic_name: str) -> Path:
-        return self.decks_dir / f"{topic_name}.json"
+        normalized_topic = self._normalize_topic_name(topic_name)
+        return self.decks_dir / f"{normalized_topic}.json"
 
     def load_deck(self, topic_name: str) -> list[dict[str, str]]:
         # Load and validate a deck's cards.
@@ -56,20 +67,24 @@ class DeckStorage:
         for item in data:
             if not isinstance(item, dict):
                 raise ValueError("Each card must be an object.")
-            if set(item.keys()) != {"question", "answer"}:
-                raise ValueError("Each card must contain exactly 'question' and 'answer'.")
+            allowed_keys = {"question", "answer", "explanation"}
+            if not {"question", "answer"}.issubset(item.keys()) or not set(item.keys()).issubset(allowed_keys):
+                raise ValueError("Each card must contain 'question' and 'answer', with optional 'explanation'.")
             question = item.get("question")
             answer = item.get("answer")
+            explanation = item.get("explanation", "")
             if not isinstance(question, str) or not isinstance(answer, str):
                 raise ValueError("Card question and answer must be strings.")
-            cards.append({"question": question, "answer": answer})
+            if not isinstance(explanation, str):
+                raise ValueError("Card explanation must be a string when provided.")
+            cards.append({"question": question, "answer": answer, "explanation": explanation})
 
         return cards
 
-    def append_card(self, topic_name: str, question: str, answer: str) -> None:
+    def append_card(self, topic_name: str, question: str, answer: str, explanation: str = "") -> None:
         # Append a card to a deck file, creating the file if needed.
         cards = self.load_deck(topic_name)
-        cards.append({"question": question, "answer": answer})
+        cards.append({"question": question, "answer": answer, "explanation": explanation})
         deck_path = self._deck_path(topic_name)
         with deck_path.open("w", encoding="utf-8") as file:
             json.dump(cards, file, ensure_ascii=False, indent=2)
@@ -115,9 +130,30 @@ class FlashcardApp:
         container.pack(expand=True)
 
         ttk.Label(container, text="Flashcard App", style="Title.TLabel").pack(pady=(0, 24))
+        ttk.Label(container, text=f"Decks folder: {self.storage.decks_dir}", wraplength=640).pack(pady=(0, 12))
         ttk.Button(container, text="Create Cards", command=self.show_create_cards_screen, width=24).pack(pady=8)
         ttk.Button(container, text="Study", command=self.show_study_selection_screen, width=24).pack(pady=8)
+        ttk.Button(container, text="Change Decks Folder", command=self.change_decks_folder, width=24).pack(pady=8)
         ttk.Button(container, text="Exit", command=self.root.destroy, width=24).pack(pady=8)
+
+    def change_decks_folder(self) -> None:
+        # Allow the user to choose a different folder for deck files.
+        selected_dir = filedialog.askdirectory(
+            title="Choose Decks Folder",
+            initialdir=str(self.storage.decks_dir),
+            mustexist=True,
+        )
+        if not selected_dir:
+            return
+
+        try:
+            self.storage.set_decks_dir(Path(selected_dir))
+        except OSError as exc:
+            messagebox.showerror("Folder Error", f"Could not use selected folder:\n{exc}")
+            return
+
+        messagebox.showinfo("Decks Folder Updated", f"Deck files will now be stored in:\n{self.storage.decks_dir}")
+        self.show_main_menu()
 
     def show_create_cards_screen(self) -> None:
         # Render the create-cards screen.
@@ -132,6 +168,7 @@ class FlashcardApp:
         topic_var = tk.StringVar()
         question_var = tk.StringVar()
         answer_var = tk.StringVar()
+        explanation_var = tk.StringVar()
 
         topic_entry = ttk.Entry(form, textvariable=topic_var, width=60)
         topic_entry.grid(row=0, column=1, sticky="ew", pady=6)
@@ -144,12 +181,17 @@ class FlashcardApp:
         answer_entry = ttk.Entry(form, textvariable=answer_var, width=60)
         answer_entry.grid(row=2, column=1, sticky="ew", pady=6)
 
+        ttk.Label(form, text="Explanation (optional):", style="Header.TLabel").grid(row=3, column=0, sticky="w", pady=6)
+        explanation_entry = ttk.Entry(form, textvariable=explanation_var, width=60)
+        explanation_entry.grid(row=3, column=1, sticky="ew", pady=6)
+
         form.columnconfigure(1, weight=1)
 
         def save_card() -> None:
             topic = topic_var.get().strip()
             question = question_var.get().strip()
             answer = answer_var.get().strip()
+            explanation = explanation_var.get().strip()
 
             if not topic:
                 messagebox.showwarning("Missing Topic", "Please enter a topic name.")
@@ -162,13 +204,14 @@ class FlashcardApp:
                 return
 
             try:
-                self.storage.append_card(topic_name=topic, question=question, answer=answer)
+                self.storage.append_card(topic_name=topic, question=question, answer=answer, explanation=explanation)
             except (OSError, ValueError, json.JSONDecodeError) as exc:
                 messagebox.showerror("Save Error", f"Could not save card:\n{exc}")
                 return
 
             question_var.set("")
             answer_var.set("")
+            explanation_var.set("")
             question_entry.focus_set()
             messagebox.showinfo("Saved", f"Card saved to deck '{topic}'.")
 
@@ -278,7 +321,13 @@ class FlashcardApp:
             return
 
         card = self.current_cards[self.current_index]
-        text = card["answer"] if self.showing_answer else card["question"]
+        if self.showing_answer:
+            explanation = card.get("explanation", "").strip()
+            text = card["answer"]
+            if explanation:
+                text = f"{text}\n\nExplanation:\n{explanation}"
+        else:
+            text = card["question"]
         side = "Answer" if self.showing_answer else "Question"
         total = len(self.current_cards)
         self.card_text_label.config(text=f"{side}:\n\n{text}")
