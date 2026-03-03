@@ -292,15 +292,22 @@ class FlashcardApp:
         card_frame = ttk.Frame(self.main_frame, relief="solid", borderwidth=1)
         card_frame.pack(fill="both", expand=True, padx=30, pady=8)
 
-        self.card_text_label = ttk.Label(
+        self.card_text_widget = tk.Text(
             card_frame,
-            text="",
-            style="CardText.TLabel",
-            anchor="center",
-            justify="center",
-            wraplength=640,
+            wrap="word",
+            font=("Segoe UI", 16),
+            padx=16,
+            pady=16,
+            borderwidth=0,
+            highlightthickness=0,
         )
-        self.card_text_label.pack(fill="both", expand=True)
+        self.card_text_widget.tag_configure("center", justify="center")
+        self.card_text_widget.tag_configure("question_title", foreground="red", font=("Segoe UI", 16, "bold"))
+        self.card_text_widget.tag_configure("answer_title", foreground="forest green", font=("Segoe UI", 16, "bold"))
+        self.card_text_widget.tag_configure("explanation_title", foreground="dark goldenrod", font=("Segoe UI", 16, "bold"))
+        self.card_text_widget.tag_configure("content", font=("Segoe UI", 16))
+        self.card_text_widget.config(state="disabled")
+        self.card_text_widget.pack(fill="both", expand=True)
 
         controls = ttk.Frame(self.main_frame)
         controls.pack(pady=12)
@@ -315,22 +322,29 @@ class FlashcardApp:
 
     def _refresh_card_display(self) -> None:
         # Update labels to display current card state.
+        self.card_text_widget.config(state="normal")
+        self.card_text_widget.delete("1.0", tk.END)
+
         if not self.current_cards:
-            self.card_text_label.config(text="No cards to display.")
+            self.card_text_widget.insert(tk.END, "No cards to display.", ("content", "center"))
+            self.card_text_widget.config(state="disabled")
             self.card_position_label.config(text="")
             return
 
         card = self.current_cards[self.current_index]
         if self.showing_answer:
+            self.card_text_widget.insert(tk.END, "Answer:\n\n", ("answer_title", "center"))
+            self.card_text_widget.insert(tk.END, card["answer"], ("content", "center"))
             explanation = card.get("explanation", "").strip()
-            text = card["answer"]
             if explanation:
-                text = f"{text}\n\nExplanation:\n{explanation}"
+                self.card_text_widget.insert(tk.END, "\n\nExplanation:\n", ("explanation_title", "center"))
+                self.card_text_widget.insert(tk.END, explanation, ("content", "center"))
         else:
-            text = card["question"]
-        side = "Answer" if self.showing_answer else "Question"
+            self.card_text_widget.insert(tk.END, "Question:\n\n", ("question_title", "center"))
+            self.card_text_widget.insert(tk.END, card["question"], ("content", "center"))
+
+        self.card_text_widget.config(state="disabled")
         total = len(self.current_cards)
-        self.card_text_label.config(text=f"{side}:\n\n{text}")
         self.card_position_label.config(text=f"Card {self.current_index + 1} of {total}")
 
     def _flip_card(self) -> None:
@@ -360,7 +374,10 @@ class FlashcardApp:
         # Jump to a random card and show its question.
         if not self.current_cards:
             return
-        self.current_index = random.randrange(len(self.current_cards))
+        total_cards = len(self.current_cards)
+        if total_cards > 1:
+            random_offset = random.randrange(total_cards - 1) + 1
+            self.current_index = (self.current_index + random_offset) % total_cards
         self.showing_answer = False
         self._refresh_card_display()
 
