@@ -117,6 +117,7 @@ class FlashcardApp:
         style.configure("Title.TLabel", font=("Segoe UI", 20, "bold"))
         style.configure("Header.TLabel", font=("Segoe UI", 12, "bold"))
         style.configure("CardText.TLabel", font=("Segoe UI", 16), padding=16)
+        style.configure("CardTitle.TLabel", font=("Segoe UI", 16, "bold"), foreground="#1f4e79")
 
     def _clear_main_frame(self) -> None:
         for child in self.main_frame.winfo_children():
@@ -292,15 +293,46 @@ class FlashcardApp:
         card_frame = ttk.Frame(self.main_frame, relief="solid", borderwidth=1)
         card_frame.pack(fill="both", expand=True, padx=30, pady=8)
 
-        self.card_text_label = ttk.Label(
-            card_frame,
+        self.card_content_frame = ttk.Frame(card_frame, padding=16)
+        self.card_content_frame.pack(fill="both", expand=True)
+
+        self.card_title_label = ttk.Label(
+            self.card_content_frame,
+            text="",
+            style="CardTitle.TLabel",
+            anchor="center",
+            justify="center",
+            wraplength=640,
+        )
+        self.card_title_label.pack(fill="x", pady=(0, 8))
+
+        self.card_body_label = ttk.Label(
+            self.card_content_frame,
             text="",
             style="CardText.TLabel",
             anchor="center",
             justify="center",
             wraplength=640,
         )
-        self.card_text_label.pack(fill="both", expand=True)
+        self.card_body_label.pack(fill="both", expand=True)
+
+        self.card_explanation_title_label = ttk.Label(
+            self.card_content_frame,
+            text="",
+            style="CardTitle.TLabel",
+            anchor="center",
+            justify="center",
+            wraplength=640,
+        )
+
+        self.card_explanation_body_label = ttk.Label(
+            self.card_content_frame,
+            text="",
+            style="CardText.TLabel",
+            anchor="center",
+            justify="center",
+            wraplength=640,
+        )
 
         controls = ttk.Frame(self.main_frame)
         controls.pack(pady=12)
@@ -316,21 +348,36 @@ class FlashcardApp:
     def _refresh_card_display(self) -> None:
         # Update labels to display current card state.
         if not self.current_cards:
-            self.card_text_label.config(text="No cards to display.")
+            self.card_title_label.config(text="")
+            self.card_body_label.config(text="No cards to display.")
+            self.card_explanation_title_label.pack_forget()
+            self.card_explanation_body_label.pack_forget()
             self.card_position_label.config(text="")
             return
 
         card = self.current_cards[self.current_index]
+        explanation = card.get("explanation", "").strip()
+
         if self.showing_answer:
-            explanation = card.get("explanation", "").strip()
-            text = card["answer"]
-            if explanation:
-                text = f"{text}\n\nExplanation:\n{explanation}"
+            side = "Answer"
+            body_text = card["answer"]
         else:
-            text = card["question"]
-        side = "Answer" if self.showing_answer else "Question"
+            side = "Question"
+            body_text = card["question"]
+
+        self.card_title_label.config(text=f"{side}:")
+        self.card_body_label.config(text=body_text)
+
+        if self.showing_answer and explanation:
+            self.card_explanation_title_label.config(text="Explanation:")
+            self.card_explanation_title_label.pack(fill="x", pady=(12, 8))
+            self.card_explanation_body_label.config(text=explanation)
+            self.card_explanation_body_label.pack(fill="both", expand=True)
+        else:
+            self.card_explanation_title_label.pack_forget()
+            self.card_explanation_body_label.pack_forget()
+
         total = len(self.current_cards)
-        self.card_text_label.config(text=f"{side}:\n\n{text}")
         self.card_position_label.config(text=f"Card {self.current_index + 1} of {total}")
 
     def _flip_card(self) -> None:
