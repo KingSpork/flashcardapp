@@ -360,7 +360,11 @@ class FlashcardApp:
         # Jump to a random card and show its question.
         if not self.current_cards:
             return
-        self.current_index = random.randrange(len(self.current_cards))
+        if len(self.current_cards) == 1:
+            self.current_index = 0
+        else:
+            available_indices = [index for index in range(len(self.current_cards)) if index != self.current_index]
+            self.current_index = random.choice(available_indices)
         self.showing_answer = False
         self._refresh_card_display()
 
