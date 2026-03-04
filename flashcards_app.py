@@ -387,11 +387,16 @@ class FlashcardApp:
         controls = ttk.Frame(self.main_frame)
         controls.pack(pady=12)
 
-        ttk.Button(controls, text="Flip", command=self._flip_card, width=12).pack(side="left", padx=6)
-        ttk.Button(controls, text="Previous", command=self._previous_card, width=12).pack(side="left", padx=6)
-        ttk.Button(controls, text="Next", command=self._next_card, width=12).pack(side="left", padx=6)
-        ttk.Button(controls, text="Random", command=self._random_card, width=12).pack(side="left", padx=6)
-        ttk.Button(controls, text="Back to Menu", command=self.show_main_menu, width=12).pack(side="left", padx=6)
+        top_controls = ttk.Frame(controls)
+        top_controls.pack(pady=(0, 8))
+        ttk.Button(top_controls, text="Flip", command=self._flip_card, width=12).pack()
+
+        bottom_controls = ttk.Frame(controls)
+        bottom_controls.pack()
+        ttk.Button(bottom_controls, text="Back to Menu", command=self.show_main_menu, width=12).pack(side="left", padx=6)
+        ttk.Button(bottom_controls, text="Previous", command=self._previous_card, width=12).pack(side="left", padx=6)
+        ttk.Button(bottom_controls, text="Next", command=self._next_card, width=12).pack(side="left", padx=6)
+        ttk.Button(bottom_controls, text="Random", command=self._random_card, width=12).pack(side="left", padx=6)
 
         self._refresh_card_display()
 
