@@ -21,7 +21,7 @@ import json
 import random
 import tkinter as tk
 from pathlib import Path
-from tkinter import filedialog, messagebox, ttk
+from tkinter import filedialog, messagebox, simpledialog, ttk
 from typing import Any
 
 
@@ -88,6 +88,20 @@ class DeckStorage:
         deck_path = self._deck_path(topic_name)
         with deck_path.open("w", encoding="utf-8") as file:
             json.dump(cards, file, ensure_ascii=False, indent=2)
+
+    def rename_deck(self, current_name: str, new_name: str) -> None:
+        # Rename a deck file.
+        current_path = self._deck_path(current_name)
+        new_path = self._deck_path(new_name)
+
+        if not current_path.exists():
+            raise FileNotFoundError(f"Deck '{current_name}' was not found.")
+        if current_path == new_path:
+            return
+        if new_path.exists():
+            raise FileExistsError(f"A deck named '{self._normalize_topic_name(new_name)}' already exists.")
+
+        current_path.rename(new_path)
 
 
 class FlashcardApp:
@@ -256,10 +270,44 @@ class FlashcardApp:
             selected_deck = listbox.get(selection[0])
             self._load_study_deck(selected_deck)
 
+        def rename_deck() -> None:
+            selection = listbox.curselection()
+            if not selection:
+                messagebox.showwarning("No Deck Selected", "Please select a deck to rename.")
+                return
+
+            selected_deck = listbox.get(selection[0])
+            renamed_deck = simpledialog.askstring(
+                "Rename Deck",
+                "Enter a new name for the selected deck:",
+                initialvalue=selected_deck,
+                parent=self.root,
+            )
+            if renamed_deck is None:
+                return
+
+            renamed_deck = renamed_deck.strip()
+            if not renamed_deck:
+                messagebox.showwarning("Invalid Name", "Deck name cannot be empty.")
+                return
+
+            try:
+                self.storage.rename_deck(selected_deck, renamed_deck)
+            except FileExistsError:
+                messagebox.showerror("Rename Error", f"A deck named '{renamed_deck}' already exists.")
+                return
+            except (OSError, ValueError) as exc:
+                messagebox.showerror("Rename Error", f"Could not rename deck:\n{exc}")
+                return
+
+            messagebox.showinfo("Deck Renamed", f"Deck '{selected_deck}' was renamed to '{renamed_deck}'.")
+            self.show_study_selection_screen()
+
         controls = ttk.Frame(frame)
         controls.pack()
 
         ttk.Button(controls, text="Start Study", command=start_study, width=18).pack(side="left", padx=8)
+        ttk.Button(controls, text="Rename Deck", command=rename_deck, width=18).pack(side="left", padx=8)
         ttk.Button(controls, text="Back to Menu", command=self.show_main_menu, width=18).pack(side="left", padx=8)
 
         if not deck_names:
