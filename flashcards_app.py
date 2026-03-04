@@ -8,11 +8,16 @@
 #     Each deck is saved as: <topic_name>.json
 #
 # JSON format:
-#     Each deck file contains a JSON list of flashcard objects with:
+#     Each deck file contains a JSON object with:
 #     {
-#         "question": "<string>",
-#         "answer": "<string>",
-#         "explanation": "<string, optional>"
+#         "schema_version": <integer>,
+#         "cards": [
+#             {
+#                 "question": "<string>",
+#                 "answer": "<string>",
+#                 "explanation": "<string, optional>"
+#             }
+#         ]
 #     }
 
 from __future__ import annotations
@@ -27,6 +32,8 @@ from typing import Any
 
 class DeckStorage:
     # Manage deck file persistence using JSON files.
+
+    SCHEMA_VERSION = 1
 
     def __init__(self, base_dir: Path) -> None:
         self.set_decks_dir(base_dir / "decks")
@@ -60,11 +67,25 @@ class DeckStorage:
         with deck_path.open("r", encoding="utf-8") as file:
             data: Any = json.load(file)
 
-        if not isinstance(data, list):
-            raise ValueError("Deck JSON must be a list.")
+        if isinstance(data, list):
+            # Legacy deck format compatibility: top-level list of cards.
+            raw_cards = data
+        elif isinstance(data, dict):
+            schema_version = data.get("schema_version")
+            if schema_version != self.SCHEMA_VERSION:
+                raise ValueError(
+                    f"Unsupported deck schema_version: {schema_version}. "
+                    f"Expected {self.SCHEMA_VERSION}."
+                )
+
+            raw_cards = data.get("cards")
+            if not isinstance(raw_cards, list):
+                raise ValueError("Deck JSON field 'cards' must be a list.")
+        else:
+            raise ValueError("Deck JSON must be an object with 'schema_version' and 'cards'.")
 
         cards: list[dict[str, str]] = []
-        for item in data:
+        for item in raw_cards:
             if not isinstance(item, dict):
                 raise ValueError("Each card must be an object.")
             allowed_keys = {"question", "answer", "explanation"}
@@ -87,7 +108,12 @@ class DeckStorage:
         cards.append({"question": question, "answer": answer, "explanation": explanation})
         deck_path = self._deck_path(topic_name)
         with deck_path.open("w", encoding="utf-8") as file:
-            json.dump(cards, file, ensure_ascii=False, indent=2)
+            json.dump(
+                {"schema_version": self.SCHEMA_VERSION, "cards": cards},
+                file,
+                ensure_ascii=False,
+                indent=2,
+            )
 
     def rename_deck(self, current_name: str, new_name: str) -> None:
         # Rename a deck file.
