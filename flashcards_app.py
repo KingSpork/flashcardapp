@@ -117,7 +117,9 @@ class FlashcardApp:
         style.configure("Title.TLabel", font=("Segoe UI", 20, "bold"))
         style.configure("Header.TLabel", font=("Segoe UI", 12, "bold"))
         style.configure("CardText.TLabel", font=("Segoe UI", 16), padding=16)
-        style.configure("CardTitle.TLabel", font=("Segoe UI", 16, "bold"), foreground="#1f4e79")
+        style.configure("QuestionTitle.TLabel", font=("Segoe UI", 16, "bold"), foreground="#cc0000")
+        style.configure("AnswerTitle.TLabel", font=("Segoe UI", 16, "bold"), foreground="#228b22")
+        style.configure("ExplanationTitle.TLabel", font=("Segoe UI", 16, "bold"), foreground="#b8860b")
 
     def _clear_main_frame(self) -> None:
         for child in self.main_frame.winfo_children():
@@ -299,7 +301,7 @@ class FlashcardApp:
         self.card_title_label = ttk.Label(
             self.card_content_frame,
             text="",
-            style="CardTitle.TLabel",
+            style="QuestionTitle.TLabel",
             anchor="center",
             justify="center",
             wraplength=640,
@@ -319,7 +321,7 @@ class FlashcardApp:
         self.card_explanation_title_label = ttk.Label(
             self.card_content_frame,
             text="",
-            style="CardTitle.TLabel",
+            style="ExplanationTitle.TLabel",
             anchor="center",
             justify="center",
             wraplength=640,
@@ -361,11 +363,13 @@ class FlashcardApp:
         if self.showing_answer:
             side = "Answer"
             body_text = card["answer"]
+            side_style = "AnswerTitle.TLabel"
         else:
             side = "Question"
             body_text = card["question"]
+            side_style = "QuestionTitle.TLabel"
 
-        self.card_title_label.config(text=f"{side}:")
+        self.card_title_label.config(text=f"{side}:", style=side_style)
         self.card_body_label.config(text=body_text)
 
         if self.showing_answer and explanation:
