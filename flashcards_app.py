@@ -277,9 +277,9 @@ class FlashcardApp:
         frame = ttk.Frame(self.main_frame, padding=10)
         frame.pack(fill="both", expand=True)
 
-        ttk.Label(frame, text="Select a Deck:", style="Header.TLabel").pack(anchor="w", pady=(0, 8))
+        ttk.Label(frame, text="Select one or more decks:", style="Header.TLabel").pack(anchor="w", pady=(0, 8))
 
-        listbox = tk.Listbox(frame, height=12)
+        listbox = tk.Listbox(frame, height=12, selectmode=tk.EXTENDED)
         listbox.pack(fill="both", expand=True, pady=(0, 10))
 
         for name in deck_names:
@@ -293,8 +293,8 @@ class FlashcardApp:
             if not selection:
                 messagebox.showwarning("No Deck Selected", "Please select a deck to study.")
                 return
-            selected_deck = listbox.get(selection[0])
-            self._load_study_deck(selected_deck)
+            selected_decks = [listbox.get(index) for index in selection]
+            self._load_study_decks(selected_decks)
 
         def rename_deck() -> None:
             selection = listbox.curselection()
@@ -345,23 +345,27 @@ class FlashcardApp:
         if not deck_names:
             messagebox.showinfo("No Decks", "No decks found. Create cards first.")
 
-    def _load_study_deck(self, topic_name: str) -> None:
-        # Load selected deck and open the study screen.
-        try:
-            cards = self.storage.load_deck(topic_name)
-        except (OSError, ValueError, json.JSONDecodeError) as exc:
-            messagebox.showerror("Load Error", f"Could not load deck:\n{exc}")
-            return
+    def _load_study_decks(self, topic_names: list[str]) -> None:
+        # Load selected decks and open the study screen.
+        combined_cards: list[dict[str, str]] = []
+        for topic_name in topic_names:
+            try:
+                cards = self.storage.load_deck(topic_name)
+            except (OSError, ValueError, json.JSONDecodeError) as exc:
+                messagebox.showerror("Load Error", f"Could not load deck '{topic_name}':\n{exc}")
+                return
+            combined_cards.extend(cards)
 
-        self.current_cards = cards
+        self.current_cards = combined_cards
         self.current_index = 0
         self.showing_answer = False
 
         if not self.current_cards:
-            messagebox.showwarning("Empty Deck", f"Deck '{topic_name}' is empty.")
+            messagebox.showwarning("Empty Selection", "The selected decks do not contain any cards.")
             return
 
-        self.show_study_screen(topic_name)
+        study_label = ", ".join(topic_names)
+        self.show_study_screen(study_label)
 
     def show_study_screen(self, topic_name: str) -> None:
         # Render flashcard study controls and card display.
