@@ -336,6 +336,12 @@ class FlashcardApp:
         ttk.Button(controls, text="Rename Deck", command=rename_deck, width=18).pack(side="left", padx=8)
         ttk.Button(controls, text="Back to Menu", command=self.show_main_menu, width=18).pack(side="left", padx=8)
 
+        ttk.Label(
+            self.main_frame,
+            text=f"App schema version: {self.storage.SCHEMA_VERSION}",
+            font=("Segoe UI", 9),
+        ).pack(anchor="se", pady=(8, 0))
+
         if not deck_names:
             messagebox.showinfo("No Decks", "No decks found. Create cards first.")
 
