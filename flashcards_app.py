@@ -181,6 +181,15 @@ class DeckStorage:
         self.deck_index[deck_id] = normalized_name
         return normalized_name
 
+    def save_deck_cards(self, deck_id: str, cards: list[dict[str, str]]) -> str:
+        # Replace all cards in a deck with provided cards.
+        if deck_id not in self.deck_index:
+            raise FileNotFoundError(f"Deck '{deck_id}' was not found.")
+
+        deck_name = self.deck_index[deck_id]
+        self._write_deck(deck_id, deck_name, cards)
+        return deck_name
+
     def rename_deck(self, deck_id: str, new_name: str) -> tuple[str, str]:
         # Rename a deck display name and update filename based on sanitized deck name.
         current_path = self._deck_path(deck_id)
@@ -311,6 +320,7 @@ class FlashcardApp:
         ttk.Label(container, text=f"Dark mode: {mode_text}", style="Header.TLabel").pack(pady=(0, 12))
         ttk.Label(container, text=f"Decks folder: {self.storage.decks_dir}", wraplength=640).pack(pady=(0, 12))
         ttk.Button(container, text="Create Cards", command=self.show_create_cards_screen, width=24).pack(pady=8)
+        ttk.Button(container, text="Edit Deck", command=self.show_edit_deck_selection_screen, width=24).pack(pady=8)
         ttk.Button(container, text="Study", command=self.show_study_selection_screen, width=24).pack(pady=8)
         ttk.Button(container, text="Toggle Dark Mode", command=self._toggle_dark_mode, width=24).pack(pady=8)
         ttk.Button(container, text="Change Decks Folder", command=self.change_decks_folder, width=24).pack(pady=8)
@@ -496,6 +506,147 @@ class FlashcardApp:
 
         if not deck_entries:
             messagebox.showinfo("No Decks", "No decks found. Create cards first.")
+
+    def show_edit_deck_selection_screen(self) -> None:
+        # Render single-deck selection for edit mode.
+        self._clear_main_frame()
+
+        ttk.Label(self.main_frame, text="Edit Deck", style="Title.TLabel").pack(pady=(0, 16))
+
+        deck_entries = self.storage.list_deck_entries()
+
+        frame = ttk.Frame(self.main_frame, padding=10)
+        frame.pack(fill="both", expand=True)
+
+        ttk.Label(frame, text="Select one deck to edit:", style="Header.TLabel").pack(anchor="w", pady=(0, 8))
+
+        colors = self.theme_colors
+        listbox = tk.Listbox(
+            frame,
+            height=12,
+            selectmode=tk.SINGLE,
+            bg=colors["entry_bg"],
+            fg=colors["text_primary"],
+            selectbackground=colors["selection_bg"],
+            selectforeground=colors["selection_fg"],
+            highlightbackground=colors["window_bg"],
+            highlightcolor=colors["accent"],
+        )
+        listbox.pack(fill="both", expand=True, pady=(0, 10))
+
+        for _deck_id, deck_name in deck_entries:
+            listbox.insert(tk.END, deck_name)
+
+        if deck_entries:
+            listbox.selection_set(0)
+
+        def open_edit_screen() -> None:
+            selection = listbox.curselection()
+            if not selection:
+                messagebox.showwarning("No Deck Selected", "Please select a deck to edit.")
+                return
+            deck_id, deck_name = deck_entries[selection[0]]
+            self.show_edit_deck_screen(deck_id, deck_name)
+
+        controls = ttk.Frame(frame)
+        controls.pack()
+
+        ttk.Button(controls, text="Edit Selected Deck", command=open_edit_screen, width=18).pack(side="left", padx=8)
+        ttk.Button(controls, text="Back to Menu", command=self.show_main_menu, width=18).pack(side="left", padx=8)
+
+        if not deck_entries:
+            messagebox.showinfo("No Decks", "No decks found. Create cards first.")
+
+    def show_edit_deck_screen(self, deck_id: str, deck_name: str) -> None:
+        # Render card-by-card deck editor with save and navigation controls.
+        try:
+            cards = self.storage.load_deck(deck_id)
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            messagebox.showerror("Load Error", f"Could not load deck '{deck_name}':\n{exc}")
+            return
+
+        if not cards:
+            messagebox.showwarning("Empty Deck", "This deck has no cards to edit.")
+            return
+
+        self._clear_main_frame()
+
+        ttk.Label(self.main_frame, text=f"Edit Deck: {deck_name}", style="Title.TLabel").pack(pady=(0, 12))
+
+        card_position_label = ttk.Label(self.main_frame, text="", style="Header.TLabel")
+        card_position_label.pack(pady=(0, 8))
+
+        form = ttk.Frame(self.main_frame, padding=8)
+        form.pack(fill="x", padx=50)
+
+        question_var = tk.StringVar()
+        answer_var = tk.StringVar()
+        explanation_var = tk.StringVar()
+        current_index = 0
+
+        ttk.Label(form, text="Question:", style="Header.TLabel").grid(row=0, column=0, sticky="w", pady=6)
+        question_entry = ttk.Entry(form, textvariable=question_var, width=60)
+        question_entry.grid(row=0, column=1, sticky="ew", pady=6)
+
+        ttk.Label(form, text="Answer:", style="Header.TLabel").grid(row=1, column=0, sticky="w", pady=6)
+        answer_entry = ttk.Entry(form, textvariable=answer_var, width=60)
+        answer_entry.grid(row=1, column=1, sticky="ew", pady=6)
+
+        ttk.Label(form, text="Explanation (optional):", style="Header.TLabel").grid(row=2, column=0, sticky="w", pady=6)
+        explanation_entry = ttk.Entry(form, textvariable=explanation_var, width=60)
+        explanation_entry.grid(row=2, column=1, sticky="ew", pady=6)
+
+        form.columnconfigure(1, weight=1)
+
+        def load_current_card() -> None:
+            card = cards[current_index]
+            question_var.set(card["question"])
+            answer_var.set(card["answer"])
+            explanation_var.set(card.get("explanation", ""))
+            card_position_label.config(text=f"Card {current_index + 1} of {len(cards)}")
+
+        def save_current_card() -> None:
+            question = question_var.get().strip()
+            answer = answer_var.get().strip()
+            explanation = explanation_var.get().strip()
+
+            if not question:
+                messagebox.showwarning("Missing Question", "Please enter a question.")
+                return
+            if not answer:
+                messagebox.showwarning("Missing Answer", "Please enter an answer.")
+                return
+
+            cards[current_index] = {"question": question, "answer": answer, "explanation": explanation}
+
+            try:
+                self.storage.save_deck_cards(deck_id, cards)
+            except (OSError, ValueError) as exc:
+                messagebox.showerror("Save Error", f"Could not save card:\n{exc}")
+                return
+
+            messagebox.showinfo("Saved", f"Card {current_index + 1} saved.")
+
+        def next_card() -> None:
+            nonlocal current_index
+            current_index = (current_index + 1) % len(cards)
+            load_current_card()
+
+        def previous_card() -> None:
+            nonlocal current_index
+            current_index = (current_index - 1) % len(cards)
+            load_current_card()
+
+        buttons = ttk.Frame(self.main_frame)
+        buttons.pack(pady=20)
+
+        ttk.Button(buttons, text="Previous", command=previous_card, width=14).pack(side="left", padx=6)
+        ttk.Button(buttons, text="Next", command=next_card, width=14).pack(side="left", padx=6)
+        ttk.Button(buttons, text="Save Card", command=save_current_card, width=14).pack(side="left", padx=6)
+        ttk.Button(buttons, text="Back to Deck Select", command=self.show_edit_deck_selection_screen, width=18).pack(side="left", padx=6)
+
+        load_current_card()
+        question_entry.focus_set()
 
     def _load_study_decks(self, selected_decks: list[tuple[str, str]]) -> None:
         # Load selected decks and open the study screen.
