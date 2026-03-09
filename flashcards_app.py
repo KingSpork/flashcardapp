@@ -38,6 +38,7 @@ class DeckStorage:
 
     def __init__(self, base_dir: Path) -> None:
         self.deck_index: dict[str, str] = {}
+        self.outdated_deck_ids: set[str] = set()
         self.set_decks_dir(base_dir / "decks")
 
     def set_decks_dir(self, decks_dir: Path) -> None:
@@ -59,6 +60,7 @@ class DeckStorage:
 
     def _load_deck_index(self) -> None:
         self.deck_index = {}
+        self.outdated_deck_ids = set()
         for path in sorted(self.decks_dir.glob('*.json')):
             if not path.is_file():
                 continue
@@ -71,6 +73,9 @@ class DeckStorage:
                     maybe_name = data.get('deck_name')
                     if isinstance(maybe_name, str) and maybe_name.strip():
                         deck_name = maybe_name.strip()
+                    schema_version = data.get('schema_version')
+                    if isinstance(schema_version, int) and schema_version < self.SCHEMA_VERSION:
+                        self.outdated_deck_ids.add(stem)
             except (OSError, json.JSONDecodeError, ValueError):
                 deck_name = stem
             self.deck_index[stem] = deck_name
@@ -78,6 +83,10 @@ class DeckStorage:
     def list_deck_entries(self) -> list[tuple[str, str]]:
         # Return deck entries as (deck_id, display_name), sorted by display name.
         return sorted(self.deck_index.items(), key=lambda item: item[1].lower())
+
+    def is_outdated_schema(self, deck_id: str) -> bool:
+        # Return True when a deck file declares an older schema version than the app supports.
+        return deck_id in self.outdated_deck_ids
 
     def refresh_decks(self) -> None:
         # Reload deck metadata from disk.
@@ -348,6 +357,8 @@ class FlashcardApp:
 
         for deck_id, deck_name in deck_entries:
             listbox.insert(tk.END, deck_name)
+            if self.storage.is_outdated_schema(deck_id):
+                listbox.itemconfig(tk.END, foreground="#cc0000")
 
         if deck_entries:
             listbox.selection_set(0)
