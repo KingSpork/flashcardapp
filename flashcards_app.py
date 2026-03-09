@@ -11,6 +11,7 @@
 #     Each deck file contains a JSON object with:
 #     {
 #         "schema_version": <integer>,
+#         "deck_name": "<string>",
 #         "cards": [
 #             {
 #                 "question": "<string>",
@@ -33,14 +34,16 @@ from typing import Any
 class DeckStorage:
     # Manage deck file persistence using JSON files.
 
-    SCHEMA_VERSION = 1
+    SCHEMA_VERSION = 2
 
     def __init__(self, base_dir: Path) -> None:
+        self.deck_index: dict[str, str] = {}
         self.set_decks_dir(base_dir / "decks")
 
     def set_decks_dir(self, decks_dir: Path) -> None:
         self.decks_dir = decks_dir
         self.decks_dir.mkdir(parents=True, exist_ok=True)
+        self._load_deck_index()
 
     def _normalize_topic_name(self, topic_name: str) -> str:
         normalized = topic_name.strip()
@@ -48,86 +51,143 @@ class DeckStorage:
             normalized = normalized[:-5]
         return normalized
 
-    def list_decks(self) -> list[str]:
-        # Return deck names (without .json extension), sorted alphabetically.
-        return sorted(path.stem for path in self.decks_dir.glob("*.json") if path.is_file())
+    def _sanitize_topic_name_for_filename(self, topic_name: str) -> str:
+        invalid_chars = set('<>:"/\\|?*')
+        sanitized = ''.join(character for character in topic_name.strip() if character not in invalid_chars and ord(character) >= 32)
+        sanitized = sanitized.strip().strip('.')
+        return sanitized or 'deck'
 
-    def _deck_path(self, topic_name: str) -> Path:
-        normalized_topic = self._normalize_topic_name(topic_name)
+    def _load_deck_index(self) -> None:
+        self.deck_index = {}
+        for path in sorted(self.decks_dir.glob('*.json')):
+            if not path.is_file():
+                continue
+            stem = path.stem
+            deck_name = stem
+            try:
+                with path.open('r', encoding='utf-8') as file:
+                    data: Any = json.load(file)
+                if isinstance(data, dict):
+                    maybe_name = data.get('deck_name')
+                    if isinstance(maybe_name, str) and maybe_name.strip():
+                        deck_name = maybe_name.strip()
+            except (OSError, json.JSONDecodeError, ValueError):
+                deck_name = stem
+            self.deck_index[stem] = deck_name
+
+    def list_deck_entries(self) -> list[tuple[str, str]]:
+        # Return deck entries as (deck_id, display_name), sorted by display name.
+        return sorted(self.deck_index.items(), key=lambda item: item[1].lower())
+
+    def _deck_path(self, deck_id: str) -> Path:
+        normalized_topic = self._normalize_topic_name(deck_id)
         return self.decks_dir / f"{normalized_topic}.json"
 
-    def load_deck(self, topic_name: str) -> list[dict[str, str]]:
+    def _ensure_unique_deck_id(self, deck_name: str, existing_deck_id: str | None = None) -> str:
+        candidate = self._sanitize_topic_name_for_filename(deck_name)
+        while True:
+            path = self._deck_path(candidate)
+            if not path.exists() or candidate == existing_deck_id:
+                return candidate
+            candidate += '_'
+
+    def find_deck_id_by_name(self, deck_name: str) -> str | None:
+        normalized_name = deck_name.strip()
+        for deck_id, display_name in self.deck_index.items():
+            if display_name == normalized_name:
+                return deck_id
+        return None
+
+    def load_deck(self, deck_id: str) -> list[dict[str, str]]:
         # Load and validate a deck's cards.
-        # Returns an empty list when file does not exist.
-        # Raises OSError/ValueError on file/read/format errors.
-        deck_path = self._deck_path(topic_name)
+        deck_path = self._deck_path(deck_id)
         if not deck_path.exists():
             return []
 
-        with deck_path.open("r", encoding="utf-8") as file:
+        with deck_path.open('r', encoding='utf-8') as file:
             data: Any = json.load(file)
 
         if isinstance(data, list):
-            # Legacy deck format compatibility: top-level list of cards.
             raw_cards = data
         elif isinstance(data, dict):
-            schema_version = data.get("schema_version")
-            if schema_version != self.SCHEMA_VERSION:
+            schema_version = data.get('schema_version')
+            if schema_version not in {1, self.SCHEMA_VERSION}:
                 raise ValueError(
                     f"Unsupported deck schema_version: {schema_version}. "
-                    f"Expected {self.SCHEMA_VERSION}."
+                    f"Expected 1 or {self.SCHEMA_VERSION}."
                 )
-
-            raw_cards = data.get("cards")
+            raw_cards = data.get('cards')
             if not isinstance(raw_cards, list):
                 raise ValueError("Deck JSON field 'cards' must be a list.")
         else:
-            raise ValueError("Deck JSON must be an object with 'schema_version' and 'cards'.")
+            raise ValueError("Deck JSON must be an object with deck metadata and cards.")
 
         cards: list[dict[str, str]] = []
         for item in raw_cards:
             if not isinstance(item, dict):
-                raise ValueError("Each card must be an object.")
-            allowed_keys = {"question", "answer", "explanation"}
-            if not {"question", "answer"}.issubset(item.keys()) or not set(item.keys()).issubset(allowed_keys):
+                raise ValueError('Each card must be an object.')
+            allowed_keys = {'question', 'answer', 'explanation'}
+            if not {'question', 'answer'}.issubset(item.keys()) or not set(item.keys()).issubset(allowed_keys):
                 raise ValueError("Each card must contain 'question' and 'answer', with optional 'explanation'.")
-            question = item.get("question")
-            answer = item.get("answer")
-            explanation = item.get("explanation", "")
+            question = item.get('question')
+            answer = item.get('answer')
+            explanation = item.get('explanation', '')
             if not isinstance(question, str) or not isinstance(answer, str):
-                raise ValueError("Card question and answer must be strings.")
+                raise ValueError('Card question and answer must be strings.')
             if not isinstance(explanation, str):
-                raise ValueError("Card explanation must be a string when provided.")
-            cards.append({"question": question, "answer": answer, "explanation": explanation})
+                raise ValueError('Card explanation must be a string when provided.')
+            cards.append({'question': question, 'answer': answer, 'explanation': explanation})
 
         return cards
 
-    def append_card(self, topic_name: str, question: str, answer: str, explanation: str = "") -> None:
-        # Append a card to a deck file, creating the file if needed.
-        cards = self.load_deck(topic_name)
-        cards.append({"question": question, "answer": answer, "explanation": explanation})
-        deck_path = self._deck_path(topic_name)
-        with deck_path.open("w", encoding="utf-8") as file:
+    def _write_deck(self, deck_id: str, deck_name: str, cards: list[dict[str, str]]) -> None:
+        deck_path = self._deck_path(deck_id)
+        with deck_path.open('w', encoding='utf-8') as file:
             json.dump(
-                {"schema_version": self.SCHEMA_VERSION, "cards": cards},
+                {'schema_version': self.SCHEMA_VERSION, 'deck_name': deck_name, 'cards': cards},
                 file,
                 ensure_ascii=False,
                 indent=2,
             )
 
-    def rename_deck(self, current_name: str, new_name: str) -> None:
-        # Rename a deck file.
-        current_path = self._deck_path(current_name)
-        new_path = self._deck_path(new_name)
+    def append_card(self, deck_name: str, question: str, answer: str, explanation: str = '') -> str:
+        # Append a card to a deck, creating a new file when deck name is new.
+        normalized_name = deck_name.strip()
+        if not normalized_name:
+            raise ValueError('Deck name cannot be empty.')
 
+        deck_id = self.find_deck_id_by_name(normalized_name)
+        if deck_id is None:
+            deck_id = self._ensure_unique_deck_id(normalized_name)
+            cards: list[dict[str, str]] = []
+        else:
+            cards = self.load_deck(deck_id)
+
+        cards.append({'question': question, 'answer': answer, 'explanation': explanation})
+        self._write_deck(deck_id, normalized_name, cards)
+        self.deck_index[deck_id] = normalized_name
+        return normalized_name
+
+    def rename_deck(self, deck_id: str, new_name: str) -> tuple[str, str]:
+        # Rename a deck display name and update filename based on sanitized deck name.
+        current_path = self._deck_path(deck_id)
         if not current_path.exists():
-            raise FileNotFoundError(f"Deck '{current_name}' was not found.")
-        if current_path == new_path:
-            return
-        if new_path.exists():
-            raise FileExistsError(f"A deck named '{self._normalize_topic_name(new_name)}' already exists.")
+            raise FileNotFoundError(f"Deck '{deck_id}' was not found.")
 
-        current_path.rename(new_path)
+        normalized_name = new_name.strip()
+        if not normalized_name:
+            raise ValueError('Deck name cannot be empty.')
+
+        cards = self.load_deck(deck_id)
+        new_deck_id = self._ensure_unique_deck_id(normalized_name, existing_deck_id=deck_id)
+        self._write_deck(new_deck_id, normalized_name, cards)
+
+        if new_deck_id != deck_id and current_path.exists():
+            current_path.unlink()
+            self.deck_index.pop(deck_id, None)
+
+        self.deck_index[new_deck_id] = normalized_name
+        return new_deck_id, normalized_name
 
 
 class FlashcardApp:
@@ -247,7 +307,7 @@ class FlashcardApp:
                 return
 
             try:
-                self.storage.append_card(topic_name=topic, question=question, answer=answer, explanation=explanation)
+                saved_deck_name = self.storage.append_card(deck_name=topic, question=question, answer=answer, explanation=explanation)
             except (OSError, ValueError, json.JSONDecodeError) as exc:
                 messagebox.showerror("Save Error", f"Could not save card:\n{exc}")
                 return
@@ -256,7 +316,7 @@ class FlashcardApp:
             answer_var.set("")
             explanation_var.set("")
             question_entry.focus_set()
-            messagebox.showinfo("Saved", f"Card saved to deck '{topic}'.")
+            messagebox.showinfo("Saved", f"Card saved to deck '{saved_deck_name}'.")
 
         buttons = ttk.Frame(self.main_frame)
         buttons.pack(pady=20)
@@ -272,7 +332,7 @@ class FlashcardApp:
 
         ttk.Label(self.main_frame, text="Study", style="Title.TLabel").pack(pady=(0, 16))
 
-        deck_names = self.storage.list_decks()
+        deck_entries = self.storage.list_deck_entries()
 
         frame = ttk.Frame(self.main_frame, padding=10)
         frame.pack(fill="both", expand=True)
@@ -282,10 +342,10 @@ class FlashcardApp:
         listbox = tk.Listbox(frame, height=12, selectmode=tk.EXTENDED)
         listbox.pack(fill="both", expand=True, pady=(0, 10))
 
-        for name in deck_names:
-            listbox.insert(tk.END, name)
+        for deck_id, deck_name in deck_entries:
+            listbox.insert(tk.END, deck_name)
 
-        if deck_names:
+        if deck_entries:
             listbox.selection_set(0)
 
         def start_study() -> None:
@@ -293,7 +353,7 @@ class FlashcardApp:
             if not selection:
                 messagebox.showwarning("No Deck Selected", "Please select a deck to study.")
                 return
-            selected_decks = [listbox.get(index) for index in selection]
+            selected_decks = [deck_entries[index] for index in selection]
             self._load_study_decks(selected_decks)
 
         def rename_deck() -> None:
@@ -302,11 +362,11 @@ class FlashcardApp:
                 messagebox.showwarning("No Deck Selected", "Please select a deck to rename.")
                 return
 
-            selected_deck = listbox.get(selection[0])
+            selected_deck_id, selected_deck_name = deck_entries[selection[0]]
             renamed_deck = simpledialog.askstring(
                 "Rename Deck",
                 "Enter a new name for the selected deck:",
-                initialvalue=selected_deck,
+                initialvalue=selected_deck_name,
                 parent=self.root,
             )
             if renamed_deck is None:
@@ -318,15 +378,12 @@ class FlashcardApp:
                 return
 
             try:
-                self.storage.rename_deck(selected_deck, renamed_deck)
-            except FileExistsError:
-                messagebox.showerror("Rename Error", f"A deck named '{renamed_deck}' already exists.")
-                return
+                _, final_deck_name = self.storage.rename_deck(selected_deck_id, renamed_deck)
             except (OSError, ValueError) as exc:
                 messagebox.showerror("Rename Error", f"Could not rename deck:\n{exc}")
                 return
 
-            messagebox.showinfo("Deck Renamed", f"Deck '{selected_deck}' was renamed to '{renamed_deck}'.")
+            messagebox.showinfo("Deck Renamed", f"Deck '{selected_deck_name}' was renamed to '{final_deck_name}'.")
             self.show_study_selection_screen()
 
         controls = ttk.Frame(frame)
@@ -342,19 +399,27 @@ class FlashcardApp:
             font=("Segoe UI", 9),
         ).pack(anchor="se", pady=(8, 0))
 
-        if not deck_names:
+        if not deck_entries:
             messagebox.showinfo("No Decks", "No decks found. Create cards first.")
 
-    def _load_study_decks(self, topic_names: list[str]) -> None:
+    def _load_study_decks(self, selected_decks: list[tuple[str, str]]) -> None:
         # Load selected decks and open the study screen.
         combined_cards: list[dict[str, str]] = []
-        for topic_name in topic_names:
+        for deck_id, deck_name in selected_decks:
             try:
-                cards = self.storage.load_deck(topic_name)
+                cards = self.storage.load_deck(deck_id)
             except (OSError, ValueError, json.JSONDecodeError) as exc:
-                messagebox.showerror("Load Error", f"Could not load deck '{topic_name}':\n{exc}")
+                messagebox.showerror("Load Error", f"Could not load deck '{deck_name}':\n{exc}")
                 return
-            combined_cards.extend(cards)
+            combined_cards.extend(
+                {
+                    "question": card["question"],
+                    "answer": card["answer"],
+                    "explanation": card.get("explanation", ""),
+                    "topic_name": deck_name,
+                }
+                for card in cards
+            )
 
         self.current_cards = combined_cards
         self.current_index = 0
@@ -364,14 +429,15 @@ class FlashcardApp:
             messagebox.showwarning("Empty Selection", "The selected decks do not contain any cards.")
             return
 
-        study_label = ", ".join(topic_names)
+        study_label = selected_decks[0][1] if len(selected_decks) == 1 else ""
         self.show_study_screen(study_label)
 
     def show_study_screen(self, topic_name: str) -> None:
         # Render flashcard study controls and card display.
         self._clear_main_frame()
 
-        ttk.Label(self.main_frame, text=f"Studying: {topic_name}", style="Title.TLabel").pack(pady=(0, 14))
+        self.study_title_label = ttk.Label(self.main_frame, text=f"Studying: {topic_name}", style="Title.TLabel")
+        self.study_title_label.pack(pady=(0, 14))
 
         self.card_position_label = ttk.Label(self.main_frame, text="", style="Header.TLabel")
         self.card_position_label.pack(pady=(0, 8))
@@ -447,6 +513,7 @@ class FlashcardApp:
             return
 
         card = self.current_cards[self.current_index]
+        self.study_title_label.config(text=f"Studying: {card.get('topic_name', '')}")
         explanation = card.get("explanation", "").strip()
 
         if self.showing_answer:
