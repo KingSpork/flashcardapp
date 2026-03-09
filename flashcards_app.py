@@ -206,11 +206,51 @@ class DeckStorage:
 class FlashcardApp:
     # Main Tkinter app for creating and studying flashcards.
 
+    LIGHT_THEME = {
+        "window_bg": "#f7f7f7",
+        "surface_bg": "#ffffff",
+        "text_primary": "#1c1c1c",
+        "text_secondary": "#4a4a4a",
+        "accent": "#2f6feb",
+        "question": "#cc0000",
+        "answer": "#228b22",
+        "explanation": "#b8860b",
+        "entry_bg": "#ffffff",
+        "entry_fg": "#1c1c1c",
+        "selection_bg": "#dce8ff",
+        "selection_fg": "#1c1c1c",
+        "button_bg": "#e9e9e9",
+        "button_active_bg": "#dddddd",
+        "button_fg": "#1c1c1c",
+        "danger": "#cc0000",
+    }
+
+    DARK_THEME = {
+        "window_bg": "#101215",
+        "surface_bg": "#1a1f26",
+        "text_primary": "#e8edf2",
+        "text_secondary": "#b4beca",
+        "accent": "#8ab4ff",
+        "question": "#ff8e8e",
+        "answer": "#7ee787",
+        "explanation": "#f2cc74",
+        "entry_bg": "#242b35",
+        "entry_fg": "#e8edf2",
+        "selection_bg": "#3a4b63",
+        "selection_fg": "#f4f8ff",
+        "button_bg": "#2c3440",
+        "button_active_bg": "#394454",
+        "button_fg": "#e8edf2",
+        "danger": "#ff8e8e",
+    }
+
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
         self.root.title("Flashcard App")
         self.root.geometry("760x500")
         self.root.minsize(680, 420)
+        self.dark_mode_enabled = False
+        self.theme_colors = self.LIGHT_THEME
 
         self.storage = DeckStorage(Path(__file__).resolve().parent)
 
@@ -225,14 +265,35 @@ class FlashcardApp:
         self.show_main_menu()
 
     def _build_styles(self) -> None:
-        # Configure basic widget styles.
+        # Configure basic widget styles based on the active theme.
+        self.theme_colors = self.DARK_THEME if self.dark_mode_enabled else self.LIGHT_THEME
+        colors = self.theme_colors
+
+        self.root.configure(background=colors["window_bg"])
         style = ttk.Style()
+        style.theme_use("clam")
+        style.configure(".", background=colors["window_bg"], foreground=colors["text_primary"])
+        style.configure("TFrame", background=colors["window_bg"])
+        style.configure("Surface.TFrame", background=colors["surface_bg"])
+        style.configure("TLabel", background=colors["window_bg"], foreground=colors["text_primary"])
         style.configure("Title.TLabel", font=("Segoe UI", 20, "bold"))
-        style.configure("Header.TLabel", font=("Segoe UI", 12, "bold"))
-        style.configure("CardText.TLabel", font=("Segoe UI", 16), padding=16)
-        style.configure("QuestionTitle.TLabel", font=("Segoe UI", 16, "bold"), foreground="#cc0000")
-        style.configure("AnswerTitle.TLabel", font=("Segoe UI", 16, "bold"), foreground="#228b22")
-        style.configure("ExplanationTitle.TLabel", font=("Segoe UI", 16, "bold"), foreground="#b8860b")
+        style.configure("Header.TLabel", font=("Segoe UI", 12, "bold"), foreground=colors["text_secondary"])
+        style.configure("CardText.TLabel", font=("Segoe UI", 16), padding=16, background=colors["surface_bg"])
+        style.configure("QuestionTitle.TLabel", font=("Segoe UI", 16, "bold"), foreground=colors["question"], background=colors["surface_bg"])
+        style.configure("AnswerTitle.TLabel", font=("Segoe UI", 16, "bold"), foreground=colors["answer"], background=colors["surface_bg"])
+        style.configure("ExplanationTitle.TLabel", font=("Segoe UI", 16, "bold"), foreground=colors["explanation"], background=colors["surface_bg"])
+
+        style.configure("TButton", background=colors["button_bg"], foreground=colors["button_fg"], borderwidth=1)
+        style.map("TButton", background=[("active", colors["button_active_bg"])])
+
+        style.configure("TEntry", fieldbackground=colors["entry_bg"], foreground=colors["entry_fg"])
+        style.map("TEntry", fieldbackground=[("readonly", colors["entry_bg"])])
+
+    def _toggle_dark_mode(self) -> None:
+        # Toggle between light and dark color palettes.
+        self.dark_mode_enabled = not self.dark_mode_enabled
+        self._build_styles()
+        self.show_main_menu()
 
     def _clear_main_frame(self) -> None:
         for child in self.main_frame.winfo_children():
@@ -246,9 +307,12 @@ class FlashcardApp:
         container.pack(expand=True)
 
         ttk.Label(container, text="Flashcard App", style="Title.TLabel").pack(pady=(0, 24))
+        mode_text = "On" if self.dark_mode_enabled else "Off"
+        ttk.Label(container, text=f"Dark mode: {mode_text}", style="Header.TLabel").pack(pady=(0, 12))
         ttk.Label(container, text=f"Decks folder: {self.storage.decks_dir}", wraplength=640).pack(pady=(0, 12))
         ttk.Button(container, text="Create Cards", command=self.show_create_cards_screen, width=24).pack(pady=8)
         ttk.Button(container, text="Study", command=self.show_study_selection_screen, width=24).pack(pady=8)
+        ttk.Button(container, text="Toggle Dark Mode", command=self._toggle_dark_mode, width=24).pack(pady=8)
         ttk.Button(container, text="Change Decks Folder", command=self.change_decks_folder, width=24).pack(pady=8)
         ttk.Button(container, text="Exit", command=self.root.destroy, width=24).pack(pady=8)
 
@@ -352,13 +416,24 @@ class FlashcardApp:
 
         ttk.Label(frame, text="Select one or more decks:", style="Header.TLabel").pack(anchor="w", pady=(0, 8))
 
-        listbox = tk.Listbox(frame, height=12, selectmode=tk.EXTENDED)
+        colors = self.theme_colors
+        listbox = tk.Listbox(
+            frame,
+            height=12,
+            selectmode=tk.EXTENDED,
+            bg=colors["entry_bg"],
+            fg=colors["text_primary"],
+            selectbackground=colors["selection_bg"],
+            selectforeground=colors["selection_fg"],
+            highlightbackground=colors["window_bg"],
+            highlightcolor=colors["accent"],
+        )
         listbox.pack(fill="both", expand=True, pady=(0, 10))
 
         for deck_id, deck_name in deck_entries:
             listbox.insert(tk.END, deck_name)
             if self.storage.is_outdated_schema(deck_id):
-                listbox.itemconfig(tk.END, foreground="#cc0000")
+                listbox.itemconfig(tk.END, foreground=colors["danger"])
 
         if deck_entries:
             listbox.selection_set(0)
@@ -462,10 +537,10 @@ class FlashcardApp:
         self.card_position_label = ttk.Label(self.main_frame, text="", style="Header.TLabel")
         self.card_position_label.pack(pady=(0, 8))
 
-        card_frame = ttk.Frame(self.main_frame, relief="solid", borderwidth=1)
+        card_frame = ttk.Frame(self.main_frame, relief="solid", borderwidth=1, style="Surface.TFrame")
         card_frame.pack(fill="both", expand=True, padx=30, pady=8)
 
-        self.card_content_frame = ttk.Frame(card_frame, padding=16)
+        self.card_content_frame = ttk.Frame(card_frame, padding=16, style="Surface.TFrame")
         self.card_content_frame.pack(fill="both", expand=True)
 
         self.card_title_label = ttk.Label(
