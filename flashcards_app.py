@@ -354,7 +354,15 @@ class FlashcardApp:
             except (OSError, ValueError, json.JSONDecodeError) as exc:
                 messagebox.showerror("Load Error", f"Could not load deck '{topic_name}':\n{exc}")
                 return
-            combined_cards.extend(cards)
+            combined_cards.extend(
+                {
+                    "question": card["question"],
+                    "answer": card["answer"],
+                    "explanation": card.get("explanation", ""),
+                    "topic_name": topic_name,
+                }
+                for card in cards
+            )
 
         self.current_cards = combined_cards
         self.current_index = 0
@@ -364,14 +372,15 @@ class FlashcardApp:
             messagebox.showwarning("Empty Selection", "The selected decks do not contain any cards.")
             return
 
-        study_label = ", ".join(topic_names)
+        study_label = topic_names[0] if len(topic_names) == 1 else ""
         self.show_study_screen(study_label)
 
     def show_study_screen(self, topic_name: str) -> None:
         # Render flashcard study controls and card display.
         self._clear_main_frame()
 
-        ttk.Label(self.main_frame, text=f"Studying: {topic_name}", style="Title.TLabel").pack(pady=(0, 14))
+        self.study_title_label = ttk.Label(self.main_frame, text=f"Studying: {topic_name}", style="Title.TLabel")
+        self.study_title_label.pack(pady=(0, 14))
 
         self.card_position_label = ttk.Label(self.main_frame, text="", style="Header.TLabel")
         self.card_position_label.pack(pady=(0, 8))
@@ -447,6 +456,7 @@ class FlashcardApp:
             return
 
         card = self.current_cards[self.current_index]
+        self.study_title_label.config(text=f"Studying: {card.get('topic_name', '')}")
         explanation = card.get("explanation", "").strip()
 
         if self.showing_answer:
