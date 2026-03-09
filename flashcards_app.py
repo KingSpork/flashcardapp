@@ -79,6 +79,10 @@ class DeckStorage:
         # Return deck entries as (deck_id, display_name), sorted by display name.
         return sorted(self.deck_index.items(), key=lambda item: item[1].lower())
 
+    def refresh_decks(self) -> None:
+        # Reload deck metadata from disk.
+        self._load_deck_index()
+
     def _deck_path(self, deck_id: str) -> Path:
         normalized_topic = self._normalize_topic_name(deck_id)
         return self.decks_dir / f"{normalized_topic}.json"
@@ -386,11 +390,16 @@ class FlashcardApp:
             messagebox.showinfo("Deck Renamed", f"Deck '{selected_deck_name}' was renamed to '{final_deck_name}'.")
             self.show_study_selection_screen()
 
+        def reload_decks() -> None:
+            self.storage.refresh_decks()
+            self.show_study_selection_screen()
+
         controls = ttk.Frame(frame)
         controls.pack()
 
         ttk.Button(controls, text="Start Study", command=start_study, width=18).pack(side="left", padx=8)
         ttk.Button(controls, text="Rename Deck", command=rename_deck, width=18).pack(side="left", padx=8)
+        ttk.Button(controls, text="Reload Decks", command=reload_decks, width=18).pack(side="left", padx=8)
         ttk.Button(controls, text="Back to Menu", command=self.show_main_menu, width=18).pack(side="left", padx=8)
 
         ttk.Label(
