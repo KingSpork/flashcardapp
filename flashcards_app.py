@@ -309,7 +309,9 @@ class FlashcardApp:
             child.destroy()
 
     def _create_limited_textbox(self, parent: ttk.Frame, width: int = 60, height: int = 4, max_chars: int = 500) -> tk.Text:
-        # Create a multiline textbox that wraps words and enforces a maximum character count.
+        # Create a multiline textbox that wraps words.
+        # Character limits are validated when the user submits the card.
+        _ = max_chars
         colors = self.theme_colors
         textbox = tk.Text(
             parent,
@@ -327,24 +329,26 @@ class FlashcardApp:
             relief="solid",
             borderwidth=1,
         )
-
-        def enforce_limit(_event: tk.Event | None = None) -> None:
-            content = textbox.get("1.0", "end-1c")
-            if len(content) > max_chars:
-                textbox.delete("1.0", "end")
-                textbox.insert("1.0", content[:max_chars])
-                self.root.bell()
-
-        textbox.bind("<KeyRelease>", enforce_limit, add="+")
-        textbox.bind("<<Paste>>", lambda _event: self.root.after_idle(enforce_limit), add="+")
         return textbox
 
     def _textbox_value(self, textbox: tk.Text) -> str:
         return textbox.get("1.0", "end-1c").strip()
 
-    def _set_textbox_value(self, textbox: tk.Text, value: str) -> None:
+    def _validate_card_lengths(self, question: str, answer: str, explanation: str, explanation_limit: int = 500) -> bool:
+        if len(question) > 500:
+            messagebox.showwarning("Question Too Long", "Question cannot exceed 500 characters.")
+            return False
+        if len(answer) > 500:
+            messagebox.showwarning("Answer Too Long", "Answer cannot exceed 500 characters.")
+            return False
+        if len(explanation) > explanation_limit:
+            messagebox.showwarning("Explanation Too Long", f"Explanation cannot exceed {explanation_limit} characters.")
+            return False
+        return True
+
+    def _set_textbox_value(self, textbox: tk.Text, value: str, max_chars: int = 500) -> None:
         textbox.delete("1.0", "end")
-        textbox.insert("1.0", value[:500])
+        textbox.insert("1.0", value[:max_chars])
 
     def show_main_menu(self) -> None:
         # Render the main menu screen.
@@ -406,8 +410,8 @@ class FlashcardApp:
         answer_entry = self._create_limited_textbox(form)
         answer_entry.grid(row=2, column=1, sticky="ew", pady=6)
 
-        ttk.Label(form, text="Explanation (optional, max 500 chars):", style="Header.TLabel").grid(row=3, column=0, sticky="nw", pady=6)
-        explanation_entry = self._create_limited_textbox(form)
+        ttk.Label(form, text="Explanation (optional, max 1000 chars):", style="Header.TLabel").grid(row=3, column=0, sticky="nw", pady=6)
+        explanation_entry = self._create_limited_textbox(form, max_chars=1000)
         explanation_entry.grid(row=3, column=1, sticky="ew", pady=6)
 
         form.columnconfigure(1, weight=1)
@@ -426,6 +430,8 @@ class FlashcardApp:
                 return
             if not answer:
                 messagebox.showwarning("Missing Answer", "Please enter an answer.")
+                return
+            if not self._validate_card_lengths(question, answer, explanation, explanation_limit=1000):
                 return
 
             try:
@@ -624,8 +630,8 @@ class FlashcardApp:
         answer_entry = self._create_limited_textbox(form)
         answer_entry.grid(row=1, column=1, sticky="ew", pady=6)
 
-        ttk.Label(form, text="Explanation (optional, max 500 chars):", style="Header.TLabel").grid(row=2, column=0, sticky="nw", pady=6)
-        explanation_entry = self._create_limited_textbox(form)
+        ttk.Label(form, text="Explanation (optional, max 1000 chars):", style="Header.TLabel").grid(row=2, column=0, sticky="nw", pady=6)
+        explanation_entry = self._create_limited_textbox(form, max_chars=1000)
         explanation_entry.grid(row=2, column=1, sticky="ew", pady=6)
 
         form.columnconfigure(1, weight=1)
@@ -634,7 +640,7 @@ class FlashcardApp:
             card = cards[current_index]
             self._set_textbox_value(question_entry, card["question"])
             self._set_textbox_value(answer_entry, card["answer"])
-            self._set_textbox_value(explanation_entry, card.get("explanation", ""))
+            self._set_textbox_value(explanation_entry, card.get("explanation", ""), max_chars=1000)
             card_position_label.config(text=f"Card {current_index + 1} of {len(cards)}")
 
         def save_current_card() -> None:
@@ -647,6 +653,8 @@ class FlashcardApp:
                 return
             if not answer:
                 messagebox.showwarning("Missing Answer", "Please enter an answer.")
+                return
+            if not self._validate_card_lengths(question, answer, explanation, explanation_limit=1000):
                 return
 
             cards[current_index] = {"question": question, "answer": answer, "explanation": explanation}
