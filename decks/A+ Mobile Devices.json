@@ -1,0 +1,131 @@
+{
+  "schema_version": 2,
+  "deck_name": "A+ Mobile Devices",
+  "cards": [
+    {
+      "question": "What does SO-DIMM stand for?",
+      "answer": "Small Outline Dual Inline Memory Module",
+      "explanation": "This type of memory module is smaller than a full DIMM slot found on desktops. It is used to add additional RAM to your laptop."
+    },
+    {
+      "question": "Nickel-cadmium (NiCd), lithium-ion (Li-ion), nickel-metal hydride (NiMH), and lithium-polymer (Li-poly) are all types of what?",
+      "answer": "batteries",
+      "explanation": "Batteries are named based on their chemistry and each kind is suitable for certain devices and applications."
+    },
+    {
+      "question": "Which type of drive has faster access time: magnetic disk or solid state drive?",
+      "answer": "solid state drive (SSD)",
+      "explanation": "Solid state drives use non-volatile RAM to store data so there are no moving parts. Magnetic disk drives have rotating disks that require longer access times."
+    },
+    {
+      "question": "Which device enables your laptop to effectively record sound?",
+      "answer": "microphone",
+      "explanation": "Most laptops come built in with microphones, and they can be located within the display or along the edges of the keyboard, among other places. This enables your laptop to record audio."
+    },
+    {
+      "question": "Which type of technology allows you to write directly on the laptop display?",
+      "answer": "digitizer",
+      "explanation": "A digitizer is commonly found on devices that function as a 2-in-1 laptop and tablet combination. This enables your display to receive input when touched by a finger or stylus, similarly to how most touchscreen phones work today."
+    },
+    {
+      "question": "Which device allows you to participate in video calls directly from your laptop?",
+      "answer": "webcam",
+      "explanation": "A webcam is typically built into the laptop above the display, although it can be an external stand-alone device as well, and it allows you to communicate via real-time video with other individuals who agree to a video call."
+    },
+    {
+      "question": "What form factors do HDDs and SSDs come in?",
+      "answer": "2.5”, 1.8”, and M.2",
+      "explanation": "It is important to know these to ensure compatibility of the components."
+    },
+    {
+      "question": "Which is typically smaller, a desktop or laptop keyboard?",
+      "answer": "a laptop keyboard",
+      "explanation": "Keyboards on a laptop are typically smaller than on a desktop to allow for greater portability."
+    },
+    {
+      "question": "NFC only works within close proximity, typically up to how many centimeters?",
+      "answer": "10 cm",
+      "explanation": "Near-field communication (NFC) works up to 10 cm from another compatible device."
+    },
+    {
+      "question": "What type of communication is used for contactless payment systems?",
+      "answer": "near field communication (NFC)",
+      "explanation": "NFC is limited to a range of a few centimeters, so two devices have to be very close to communicate."
+    },
+    {
+      "question": "Why can NFC pose a security risk?",
+      "answer": "The signals can be intercepted at close range.",
+      "explanation": "Near-field communication (NFC) operates over very short distances, but malicious devices nearby may intercept transmissions if necessary precautions are not taken."
+    },
+    {
+      "question": "What is the process that Bluetooth devices use to discover and connect to each other?",
+      "answer": "pairing",
+      "explanation": "Before Bluetooth devices can communicate, they must accept each other’s connection in the pairing process."
+    },
+    {
+      "question": "Which USB connector is not dependent on orientation?",
+      "answer": "USB-C",
+      "explanation": "USB-C is described as a symmetrical connector that does not require a specific orientation when connecting."
+    },
+    {
+      "question": "The antenna is usually located in what portion of the clamshell?",
+      "answer": "the upper or top portion",
+      "explanation": "The top of the clamshell contains the Wi-Fi antenna, which is placed there for better signal reception."
+    },
+    {
+      "question": "Which pointing device allows cursor control without moving your hands from the keyboard?",
+      "answer": "track point",
+      "explanation": "Track points are small analog sticks embedded in keyboards, allowing precise cursor movement."
+    },
+    {
+      "question": "What electronic component must be disconnected before removing a wireless NIC from a laptop?",
+      "answer": "antenna wires",
+      "explanation": "Wireless network interface cards (NICs) use two antenna wires for signal transmission, which must be carefully disconnected before removing the card."
+    },
+    {
+      "question": "Which 5G classification supports autonomous vehicles and industrial systems?",
+      "answer": "ultra-reliable low-latency communications (URLLC)",
+      "explanation": "URLLC enables mission-critical applications that require minimal delay."
+    },
+    {
+      "question": "What must be verified before installing a replacement SODIMM?",
+      "answer": "compatibility with the motherboard",
+      "explanation": "SODIMM stands for small outline dual in-line memory module. Laptop random access memory (RAM) must match the supported DDR version, pin count, and configuration required by the motherboard."
+    },
+    {
+      "question": "When an Android device synchronizes data with the cloud, where does that data get stored?",
+      "answer": "the user’s Google Drive",
+      "explanation": "Google account users get limited free storage in the Google Cloud in an area dedicated as their Google Drive."
+    },
+    {
+      "question": "What type of mobile device policy gives organizations the most control?",
+      "answer": "corporate policy",
+      "explanation": "Corporate policies apply to company-owned devices and allow full control over usage, apps, and security settings."
+    },
+    {
+      "question": "How are tethering and hotspots related?",
+      "answer": "Tethering turns a mobile device into a hotspot.",
+      "explanation": "Hotspots are often fixed access points that serve multiple devices, but tethering allows a phone to share its cellular connection and become a hotspot."
+    },
+    {
+      "question": "When replacing a laptop battery, what is the first thing you should determine?",
+      "answer": "whether the battery is internal or external",
+      "explanation": "Laptop batteries can be either external or internal. External batteries are removed directly, while internal batteries require removing the bottom cover and disconnecting the battery from the motherboard."
+    },
+    {
+      "question": "What service uses the following three primary components: the satellite constellation, the ground control network, and the receiver?",
+      "answer": "GPS",
+      "explanation": "GPS use is on the increase and is finding its way into many new applications."
+    },
+    {
+      "question": "MDM and MAM are both types of software used for what type of security?",
+      "answer": "mobile device security",
+      "explanation": "Companies use mobile application management (MAM) and mobile device management (MDM) to ensure the security of mobile devices."
+    },
+    {
+      "question": "Microsoft 365, iCloud, and Google Workspace can all be used for what?",
+      "answer": "mobile device synchronization",
+      "explanation": "Microsoft 365, iCloud, and Google Workspace can all be used for mobile device synchronization via a wired connection, Bluetooth connection, Wi-Fi connection, or cellular connection."
+    }
+  ]
+}

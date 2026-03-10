@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "deck_name": "A+ Virtualization & Cloud Computing",
+  "cards": [
+    {
+      "question": "Without sufficient ____, a virtual machine (VM) will fail to run smoothly.",
+      "answer": "memory (RAM)",
+      "explanation": "The builder must determine how much physical random access memory (RAM) and disk space the local machine can afford to give the VM to ensure it runs as needed."
+    },
+    {
+      "question": "What is the feature found in cloud computing that allows users to automatically request additional storage space?",
+      "answer": "rapid elasticity",
+      "explanation": "Rapid elasticity is the term for a service that allows users to automatically request additional storage space in the cloud."
+    },
+    {
+      "question": "What is the feature found in cloud computing where the provider calculates the usage of the service for billing, planning, and managing resources?",
+      "answer": "measured service",
+      "explanation": "Be aware of the five principles of cloud services as defined by the National Institute of Standards and Technologies: Public/Private/Hybrid Access, Rapid Elasticity, On Demand, Resource Pooling, and Measured Service."
+    },
+    {
+      "question": "Which cloud technology model allows you to use software hosted in the cloud without hosting any of the software on-premise?",
+      "answer": "Software-as-a-Service (SaaS)",
+      "explanation": "SaaS is a popular model that allows software to be hosted in some central location, off-premise. All you need is an Internet connection to access the software, as needed."
+    },
+    {
+      "question": "Which cloud model allows organizations to move their entire infrastructure to the cloud?",
+      "answer": "IaaS",
+      "explanation": "IaaS (Infrastructure-as-a-Service) is a cloud model that allows organizations to move their entire infrastructure to the cloud. Infrastructure includes items such as routers, switches, firewalls, and servers."
+    },
+    {
+      "question": "Which cloud model would allow a developer to build, create, and manage their applications without having to worry about the infrastructure?",
+      "answer": "PaaS",
+      "explanation": "PaaS (Platform-as-a-Service) companies provide platforms for software developers to build, create, and maintain their applications. The PaaS provider handles everything on the back-end including setup and maintenance of servers and networking equipment."
+    },
+    {
+      "question": "What makes it possible for users to access their cloud-hosted files on multiple devices (laptop, tablet, desktop) and pick up right where they left off on the previous device?",
+      "answer": "synchronization apps",
+      "explanation": "Many cloud file storage services use synchronization apps that allow users to access the same version of files on multiple devices."
+    },
+    {
+      "question": "How does a container differ from a virtual machine?",
+      "answer": "A container uses the underlying OS kernel instead of creating an entire OS.",
+      "explanation": "Containers house applications and their software in a separate environment. They offer more simplistic and efficient deployment compared to the full operating system (OS) overhead of a virtual machine (VM)."
+    },
+    {
+      "question": "What is required for full virtualization because it handles all interactions during virtualization, making it possible for multiple guest operating systems to run at one time?",
+      "answer": "hypervisor",
+      "explanation": "Hypervisors handle all interactions during virtualization and make it possible to run multiple guest operating systems at one time. Hypervisors are needed for full virtualization."
+    },
+    {
+      "question": "What is the main benefit of dynamic allocation in virtual storage?",
+      "answer": "It ensures that storage space is available exactly when it is needed.",
+      "explanation": "In sophisticated virtual networks, dynamic allocation allows resources to be distributed efficiently based on the current needs of each individual virtual device rather than wasting space by over-provisioning from the start."
+    },
+    {
+      "question": "When cost is not a concern, but security is the number one priority, which type of cloud implementation should be used?",
+      "answer": "private cloud",
+      "explanation": "A private cloud is a cloud implementation that is owned solely by one organization. Private clouds are the most expensive to implement, but also the most secure."
+    },
+    {
+      "question": "A cloud-based application that is available to anyone over the open Internet is known as which type of cloud implementation?",
+      "answer": "public cloud",
+      "explanation": "Public cloud refers to anything that is delivered across the open Internet. When someone uses the term the cloud, they are often referring to the public cloud."
+    },
+    {
+      "question": "What is the primary purpose of a virtual machine (VM)?",
+      "answer": "maximizing available resources by removing the one-to-one hardware and software barrier",
+      "explanation": "VMs allow a single device to run multiple operating systems (OSs) or pool resources from multiple servers. They also protect the host system by keeping environments isolated from one another."
+    },
+    {
+      "question": "What is multitenancy?",
+      "answer": "when a single cloud instance is used by multiple entities, with their data logically separated",
+      "explanation": "Public clouds like Amazon Web Services (AWS) and Google Cloud use multitenancy to serve many customers on the same physical infrastructure while keeping their data private from one another."
+    },
+    {
+      "question": "What is the difference between ingress and egress in metered cloud utilization?",
+      "answer": "Ingress refers to incoming data, while egress refers to outgoing data.",
+      "explanation": "Cloud providers track usage to charge users only for what they use. While they typically don’t charge for data coming into the cloud (ingress), they meter and bill for the data leaving the cloud (egress)."
+    },
+    {
+      "question": "What cloud concept is measured in terms of nines?",
+      "answer": "availability",
+      "explanation": "Cloud characteristics include high availability, which is measured in nines, or the amount of uptime the provider offers. “Five nines” means 99.999%."
+    },
+    {
+      "question": "Where can a VDI be hosted?",
+      "answer": "in the cloud or on premise",
+      "explanation": "A VDI or virtual desktop infrastructure can be run either locally on premise or remotely through the cloud."
+    },
+    {
+      "question": "What is a temporary, isolated virtual environment that can be used for testing or quarantining?",
+      "answer": "sandbox",
+      "explanation": "A sandbox is a safe environment that can be set up on a virtual machine. The sandbox isolates the environment from the host machine and does not have access to or save data to the host, protecting the host."
+    },
+    {
+      "question": "What is it called when an operating system is run virtually on another operating system?",
+      "answer": "cross-platform virtualization",
+      "explanation": "Cross-platform virtualization occurs when a separate operating system is run virtually on a different operating system, such as running a Linux OS on a Windows machine."
+    },
+    {
+      "question": "What is the division of the resources of a provider among the clients of the provider?",
+      "answer": "resource pooling",
+      "explanation": "Resource pooling or shared resources allows for multiple clients of a provider to share resources with multiple virtual machines. It can occur either internally or externally."
+    }
+  ]
+}

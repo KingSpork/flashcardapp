@@ -1,0 +1,61 @@
+{
+  "schema_version": 2,
+  "deck_name": "A+ Operating Systems",
+  "cards": [
+    {
+      "question": "This is a drive encryption utility designed to protect data on a PC by encrypting the entire hard drive.",
+      "answer": "BitLocker",
+      "explanation": "BitLocker completely encrypts a hard drive protecting data from loss or theft."
+    },
+    {
+      "question": "What are the two mandatory hardware/firmware security requirements for installing Windows 11?",
+      "answer": "TPM 2.0 and UEFI with Secure Boot",
+      "explanation": "Unlike Windows 10, Windows 11 mandates these security features to enhance cryptographic key storage and prevent unauthorized boot access."
+    },
+    {
+      "question": "What is the difference between the ipconfig and ping commands?",
+      "answer": "The ipconfig command displays the network configurations, while the ping command tests connectivity to a specific address.",
+      "explanation": "Use ipconfig to see your own network settings (e.g., IP address, subnet, gateway) and ping to see if you can reach another device on the network using Internet Control Message Protocol (ICMP) packets."
+    },
+    {
+      "question": "What Windows utility is used to delete temporary files from a hard drive to free up disk space?",
+      "answer": "Disk Cleanup",
+      "explanation": "For Windows 7, Disk Cleanup is located in System tools.\nFor Windows 8, from Start, type Disk Cleanup.\nIn Windows 10, from Start, type Disk Cleanup."
+    },
+    {
+      "question": "What is the difference between .dmg, .pkg, and .app files in macOS?",
+      "answer": "A .dmg file is a disk image, .pkg is an installer package, and .app is the application itself.",
+      "explanation": "macOS uses these three formats to distribute and install software. A .dmg acts like a virtual disk, while a .pkg often contains automated scripts for complex installations. The .app file contains the executable code for the application."
+    },
+    {
+      "question": "To disable FTP on a network, what port number would you block on the firewall?",
+      "answer": "Port 21",
+      "explanation": "By blocking port 21 on a firewall, any FTP traffic would be denied."
+    },
+    {
+      "question": "What protocol converts domain names into IP addresses?",
+      "answer": "DNS",
+      "explanation": "The Domain Name Server converts domain names to IP addresses."
+    },
+    {
+      "question": "What feature on a network allows for prioritizing certain traffic?",
+      "answer": "QoS (Quality of Service)",
+      "explanation": "When enabled, QoS can be set to prioritize certain types of traffic. An example would be when voice or video traffic is being used on a network."
+    },
+    {
+      "question": "What Windows utility allows you to delete, create, or resize disk partitions?",
+      "answer": "Disk Management",
+      "explanation": "To enter Disk Management on Windows 7, from the Control Panel, select System and Security > Create and format hard disk partitions.\n\nOn Windows 8, Disk Management is invoked by pressing the Windows.Logo key and typing diskmgmt.msc.\n\nIn Windows 10, Disk Management is invoked by pressing the Windows.Logo key and typing diskmgmt.msc. (same as in Windows 8)"
+    },
+    {
+      "question": "What Apple feature allows the user to use small motions on a trackpad to complete simple tasks, such as turning a page?",
+      "answer": "Gestures",
+      "explanation": "Apple Gestures can be configured through System Preferences under Trackpad and provides personalization for the type of movement needed to accomplish a task."
+    },
+    {
+      "question": "Looking at this will tell you your network ID, broadcast address, and number of host addresses available.",
+      "answer": "Subnet Mask",
+      "explanation": "IP addresses are made up of 32 binary bits, which determine both the network address as well as the host address. To indicate which bits are network bits and which bits are host bits, IP addressing parameters include a subnet mask.\n\nThe subnet mask is also made up of 32 bits, each subnet mask bit corresponding to a single bit in the IP address. If the IP address bit is a network bit, the subnet mask bit is set to “1”. If the corresponding IP address bit is a host bit, the corresponding netmask b"
+    }
+  ]
+}
