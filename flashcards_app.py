@@ -308,6 +308,44 @@ class FlashcardApp:
         for child in self.main_frame.winfo_children():
             child.destroy()
 
+    def _create_limited_textbox(self, parent: ttk.Frame, width: int = 60, height: int = 4, max_chars: int = 500) -> tk.Text:
+        # Create a multiline textbox that wraps words and enforces a maximum character count.
+        colors = self.theme_colors
+        textbox = tk.Text(
+            parent,
+            width=width,
+            height=height,
+            wrap="word",
+            undo=True,
+            bg=colors["entry_bg"],
+            fg=colors["entry_fg"],
+            insertbackground=colors["entry_fg"],
+            selectbackground=colors["selection_bg"],
+            selectforeground=colors["selection_fg"],
+            highlightbackground=colors["window_bg"],
+            highlightcolor=colors["accent"],
+            relief="solid",
+            borderwidth=1,
+        )
+
+        def enforce_limit(_event: tk.Event | None = None) -> None:
+            content = textbox.get("1.0", "end-1c")
+            if len(content) > max_chars:
+                textbox.delete("1.0", "end")
+                textbox.insert("1.0", content[:max_chars])
+                self.root.bell()
+
+        textbox.bind("<KeyRelease>", enforce_limit, add="+")
+        textbox.bind("<<Paste>>", lambda _event: self.root.after_idle(enforce_limit), add="+")
+        return textbox
+
+    def _textbox_value(self, textbox: tk.Text) -> str:
+        return textbox.get("1.0", "end-1c").strip()
+
+    def _set_textbox_value(self, textbox: tk.Text, value: str) -> None:
+        textbox.delete("1.0", "end")
+        textbox.insert("1.0", value[:500])
+
     def show_main_menu(self) -> None:
         # Render the main menu screen.
         self._clear_main_frame()
@@ -356,32 +394,29 @@ class FlashcardApp:
 
         ttk.Label(form, text="Topic Name:", style="Header.TLabel").grid(row=0, column=0, sticky="w", pady=6)
         topic_var = tk.StringVar()
-        question_var = tk.StringVar()
-        answer_var = tk.StringVar()
-        explanation_var = tk.StringVar()
 
         topic_entry = ttk.Entry(form, textvariable=topic_var, width=60)
         topic_entry.grid(row=0, column=1, sticky="ew", pady=6)
 
-        ttk.Label(form, text="Question:", style="Header.TLabel").grid(row=1, column=0, sticky="w", pady=6)
-        question_entry = ttk.Entry(form, textvariable=question_var, width=60)
+        ttk.Label(form, text="Question (max 500 chars):", style="Header.TLabel").grid(row=1, column=0, sticky="nw", pady=6)
+        question_entry = self._create_limited_textbox(form)
         question_entry.grid(row=1, column=1, sticky="ew", pady=6)
 
-        ttk.Label(form, text="Answer:", style="Header.TLabel").grid(row=2, column=0, sticky="w", pady=6)
-        answer_entry = ttk.Entry(form, textvariable=answer_var, width=60)
+        ttk.Label(form, text="Answer (max 500 chars):", style="Header.TLabel").grid(row=2, column=0, sticky="nw", pady=6)
+        answer_entry = self._create_limited_textbox(form)
         answer_entry.grid(row=2, column=1, sticky="ew", pady=6)
 
-        ttk.Label(form, text="Explanation (optional):", style="Header.TLabel").grid(row=3, column=0, sticky="w", pady=6)
-        explanation_entry = ttk.Entry(form, textvariable=explanation_var, width=60)
+        ttk.Label(form, text="Explanation (optional, max 500 chars):", style="Header.TLabel").grid(row=3, column=0, sticky="nw", pady=6)
+        explanation_entry = self._create_limited_textbox(form)
         explanation_entry.grid(row=3, column=1, sticky="ew", pady=6)
 
         form.columnconfigure(1, weight=1)
 
         def save_card() -> None:
             topic = topic_var.get().strip()
-            question = question_var.get().strip()
-            answer = answer_var.get().strip()
-            explanation = explanation_var.get().strip()
+            question = self._textbox_value(question_entry)
+            answer = self._textbox_value(answer_entry)
+            explanation = self._textbox_value(explanation_entry)
 
             if not topic:
                 messagebox.showwarning("Missing Topic", "Please enter a topic name.")
@@ -399,9 +434,9 @@ class FlashcardApp:
                 messagebox.showerror("Save Error", f"Could not save card:\n{exc}")
                 return
 
-            question_var.set("")
-            answer_var.set("")
-            explanation_var.set("")
+            self._set_textbox_value(question_entry, "")
+            self._set_textbox_value(answer_entry, "")
+            self._set_textbox_value(explanation_entry, "")
             question_entry.focus_set()
             messagebox.showinfo("Saved", f"Card saved to deck '{saved_deck_name}'.")
 
@@ -579,36 +614,33 @@ class FlashcardApp:
         form = ttk.Frame(self.main_frame, padding=8)
         form.pack(fill="x", padx=50)
 
-        question_var = tk.StringVar()
-        answer_var = tk.StringVar()
-        explanation_var = tk.StringVar()
         current_index = 0
 
-        ttk.Label(form, text="Question:", style="Header.TLabel").grid(row=0, column=0, sticky="w", pady=6)
-        question_entry = ttk.Entry(form, textvariable=question_var, width=60)
+        ttk.Label(form, text="Question (max 500 chars):", style="Header.TLabel").grid(row=0, column=0, sticky="nw", pady=6)
+        question_entry = self._create_limited_textbox(form)
         question_entry.grid(row=0, column=1, sticky="ew", pady=6)
 
-        ttk.Label(form, text="Answer:", style="Header.TLabel").grid(row=1, column=0, sticky="w", pady=6)
-        answer_entry = ttk.Entry(form, textvariable=answer_var, width=60)
+        ttk.Label(form, text="Answer (max 500 chars):", style="Header.TLabel").grid(row=1, column=0, sticky="nw", pady=6)
+        answer_entry = self._create_limited_textbox(form)
         answer_entry.grid(row=1, column=1, sticky="ew", pady=6)
 
-        ttk.Label(form, text="Explanation (optional):", style="Header.TLabel").grid(row=2, column=0, sticky="w", pady=6)
-        explanation_entry = ttk.Entry(form, textvariable=explanation_var, width=60)
+        ttk.Label(form, text="Explanation (optional, max 500 chars):", style="Header.TLabel").grid(row=2, column=0, sticky="nw", pady=6)
+        explanation_entry = self._create_limited_textbox(form)
         explanation_entry.grid(row=2, column=1, sticky="ew", pady=6)
 
         form.columnconfigure(1, weight=1)
 
         def load_current_card() -> None:
             card = cards[current_index]
-            question_var.set(card["question"])
-            answer_var.set(card["answer"])
-            explanation_var.set(card.get("explanation", ""))
+            self._set_textbox_value(question_entry, card["question"])
+            self._set_textbox_value(answer_entry, card["answer"])
+            self._set_textbox_value(explanation_entry, card.get("explanation", ""))
             card_position_label.config(text=f"Card {current_index + 1} of {len(cards)}")
 
         def save_current_card() -> None:
-            question = question_var.get().strip()
-            answer = answer_var.get().strip()
-            explanation = explanation_var.get().strip()
+            question = self._textbox_value(question_entry)
+            answer = self._textbox_value(answer_entry)
+            explanation = self._textbox_value(explanation_entry)
 
             if not question:
                 messagebox.showwarning("Missing Question", "Please enter a question.")
