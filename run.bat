@@ -1,0 +1,1 @@
+python .\flashcards_app.py

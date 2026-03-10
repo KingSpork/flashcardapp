@@ -1,0 +1,131 @@
+{
+  "schema_version": 2,
+  "deck_name": "A+ Hardware",
+  "cards": [
+    {
+      "question": "Which RAID array only offers mirroring?",
+      "answer": "RAID 1",
+      "explanation": "RAID 1 only offers mirroring, without any striping or parity."
+    },
+    {
+      "question": "Which connector type is primarily used for ethernet?",
+      "answer": "RJ-45",
+      "explanation": "RJ-45 is used in ethernet applications, and uses all eight wires inside the cable to send and receive data."
+    },
+    {
+      "question": "Which video connector type can run as a single link and dual link connection?",
+      "answer": "DVI",
+      "explanation": "DVI supports both single and dual link connections, with 3.7 and 7.4 gbps throughput, respectively."
+    },
+    {
+      "question": "DVI supports both single and dual link connections, with 3.7 and 7.4 gbps throughput, respectively.",
+      "answer": "Power On Self Test (POST)",
+      "explanation": "POST is initialized by the BIOS upon system startup, where it verifies all components are in order to proceed with booting the operating system."
+    },
+    {
+      "question": "This technology can identify errors in memory, and then correct them as it operates.",
+      "answer": "ECC",
+      "explanation": "Error Correcting Code memory is an expensive type of memory, typically reserved for high-end systems."
+    },
+    {
+      "question": "What modern BIOS can boot from removable media and support GPT disks?",
+      "answer": "UEFI BIOS",
+      "explanation": "The modern BIOS provides a host of new capabilities, which include a pre-boot environment and remote connectivity."
+    },
+    {
+      "question": "The total capacity of the power supply is called the _____.",
+      "answer": "wattage rating",
+      "explanation": "The wattage rating is the total measure of the power supply capacity of a device."
+    },
+    {
+      "question": "What is the standard that broadcasts and receives signals on 2.4GHz and 5GHz frequencies?",
+      "answer": "802.11",
+      "explanation": "The IEEE defined the 802.11 standard for wireless communication with the 2.4GHz and 5GHz frequency bands."
+    },
+    {
+      "question": "What form of contactless communication is used for tap pay devices?",
+      "answer": "NFC",
+      "explanation": "Near field communication (NFC) is used for contactless payments if the payment card or device is with a few centimeters of the tap pay device."
+    },
+    {
+      "question": "What is the maximum distance for Bluetooth communications?",
+      "answer": "10 meters",
+      "explanation": "Bluetooth is used mostly for personal peripherals like headsets and wearables that would be close to the device."
+    },
+    {
+      "question": "DDR4 memory is faster than its DDR2 and DDR3 predecessors. Does it consume more or less power?",
+      "answer": "Less",
+      "explanation": "While it sounds counterintuitive, new memory technology provides higher speeds with less power consumption."
+    },
+    {
+      "question": "Which printer language is device dependent?",
+      "answer": "PCL",
+      "explanation": "PCL is a newer printer language and is device dependent."
+    },
+    {
+      "question": "What type of cooling is most effective for the most powerful processors?",
+      "answer": "liquid cooling",
+      "explanation": "Liquid cooling or water cooling is the most effective way to draw heat away from processors."
+    },
+    {
+      "question": "What is the fastest form of SSD?",
+      "answer": "NVME",
+      "explanation": "Non-volatile memory express is a form of memory that uses the M.2 form factor. It is the fastest SSD available today."
+    },
+    {
+      "question": "What is the most commonly used type of connector for cable Internet service?",
+      "answer": "RG-6",
+      "explanation": "RG-6 connectors are cylindrical connectors with a threaded end to make a secure connection. It is similar to the RG-59 connectors used for cable TV, but slightly larger."
+    },
+    {
+      "question": "Landscape mode and portrait mode are examples of what?",
+      "answer": "orientation",
+      "explanation": "Orientation settings within a printer determine the layout of a print and can be either landscape (wider than tall) or portrait (taller than wide)."
+    },
+    {
+      "question": "Where can a record of all print jobs on a printer be located?",
+      "answer": "in the audit logs",
+      "explanation": "Audit logs keep a record of all print activity, as well as print origination location."
+    },
+    {
+      "question": "Which type of scanner is best suited to scan multiple pages quickly?",
+      "answer": "ADF scanner",
+      "explanation": "An ADF scanner will scan multiple pages quickly through the use of a feeder."
+    },
+    {
+      "question": "What two substances can a 3-D printer use?",
+      "answer": "filament or resin",
+      "explanation": "Depending on the type of 3-D printer, it can use either filament or resin to print."
+    },
+    {
+      "question": "What is expressed in dots per inch?",
+      "answer": "What is expressed in dots per inch?",
+      "explanation": "Print resolution is expressed in dots per inch and is directly related to print quality."
+    },
+    {
+      "question": "IPS, TN, and VA are all types of what kind of display?",
+      "answer": "LCD",
+      "explanation": "In-plane switching (IPS), twisted nematic (TN), and vertical alignment (VA) are all types of liquid crystal display (LCD). The variants indicate how the transistors and liquid crystals work together to form an image."
+    },
+    {
+      "question": "Which display type does not require a backlight?",
+      "answer": "OLED",
+      "explanation": "In an organic light-emitting diode (OLED) display, the light-emitting compound produces its own light, negating the need for a backlight."
+    },
+    {
+      "question": "What is the function of an inverter in an LCD screen?",
+      "answer": "to convert DC power to AC power",
+      "explanation": "An inverter converts DC current into the AC current needed to backlight the LCD display."
+    },
+    {
+      "question": "Which LCD technology provides the least lag time?",
+      "answer": "twisted nematic (TN)",
+      "explanation": "TN is the oldest LCD technology. While it has limited viewing angles and poor color reproduction, it provides the least amount of lag, making it ideal for gaming."
+    },
+    {
+      "question": "What is the main functional difference between USB 2.0 and USB 3.0 regarding data transmission direction?",
+      "answer": "USB 2.0 is half-duplex, while USB 3.0 is full-duplex.",
+      "explanation": "Half-duplex (USB 2.0) only allows data to travel one way at a time, while full-duplex (USB 3.0) allows simultaneous sending and receiving."
+    }
+  ]
+}

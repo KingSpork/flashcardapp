@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "deck_name": "A+ Hardware & Network Troubleshooting",
+  "cards": [
+    {
+      "question": "What does POST stand for?",
+      "answer": "Power-On Self-Test",
+      "explanation": "The POST is special software stored on your system’s read-only memory, which runs every time your machine boots. It runs a check on system components to ensure they are working properly (e.g., your keyboard and mouse)."
+    },
+    {
+      "question": "What is IOPS?",
+      "answer": "input/output operations per second",
+      "explanation": "IOPS is the number of read/write operations a storage device, such as a NAS or RAID device, can perform per second. A decline in the IOPS number of a storage device can be an indication of failure."
+    },
+    {
+      "question": "What does RAID stand for?",
+      "answer": "Redundant Array of Inexpensive Disks",
+      "explanation": "“Independent” is also used interchangeably with “Inexpensive.” RAID is a standard for providing redundancy within disk drives to protect data."
+    },
+    {
+      "question": "What is S.M.A.R.T.?",
+      "answer": "self-monitoring, analysis, and reporting technology",
+      "explanation": "S.M.A.R.T. metrics are used to measure hard drive reliability and performance and can create benchmarks for later comparison of performance."
+    },
+    {
+      "question": "What is “burn-in” on a monitor?",
+      "answer": "an image that has become permanent on the display",
+      "explanation": "an image that has become permanent on the display"
+    },
+    {
+      "question": "What is a dead pixel?",
+      "answer": "a pixel that does not display any color",
+      "explanation": "Dead pixels always stay black and never display any color."
+    },
+    {
+      "question": "How does the troubleshooting process for a non-responsive digitizer differ between a laptop and a mobile phone?",
+      "answer": "On a laptop you recalibrate the settings; mobile phone you must power cycle (turn off/on) the device.",
+      "explanation": "Laptops often allow software recalibration when the digitizer is malfunctioning. If that fails, a mouse/keyboard can be used. Phones generally require a full restart. If that fails, the screen must be replaced."
+    },
+    {
+      "question": "What does APIPA stand for?",
+      "answer": "Automatic Private IP Addressing",
+      "explanation": "APIPA is used when a client is using dynamic host configuration protocol (DHCP) addressing but is unable to reach the DHCP server."
+    },
+    {
+      "question": "What does SSID stand for?",
+      "answer": "Service Set Identifier",
+      "explanation": "The SSID is a unique name selected to define and identify a wireless network."
+    },
+    {
+      "question": "What causes mobile batteries to become swollen?",
+      "answer": "internal components that begin to build up gas",
+      "explanation": "Lithium-Ion batteries are prone to failure and may sometimes begin building up gas when components fail. They become swollen because the battery case is designed to hold this gas inside and not release it into the atmosphere."
+    },
+    {
+      "question": "What is the most likely cause of a flickering screen versus a flashing screen?",
+      "answer": "A flickering screen likely indicates a failing backlight, while a flashing screen likely indicates a bad connection cable.",
+      "explanation": "A failing backlight causes the light level to stutter (flicker), whereas a bad cable often causes the entire video signal to drop in and out (flash)."
+    },
+    {
+      "question": "What is the reason for creased paper coming out of a printer?",
+      "answer": "partial obstruction of the paper path",
+      "explanation": "This is usually the result of something being in the way of the print path, but can also result from using the wrong weight of paper in your printer."
+    },
+    {
+      "question": "What are ghost images?",
+      "answer": "previously printed images appearing on your paper",
+      "explanation": "Ghost images occur when excess toner has not been removed from the imaging drum by the cleaning process."
+    },
+    {
+      "question": "What is an LED status indicator?",
+      "answer": "an LED light visible on storage devices",
+      "explanation": "The LED status indicator light on storage devices can indicate the health of the device. Some LED status lights blink when functioning properly or remain solid if functioning improperly. To assess the meaning of the LED status light, check for vendor-specific information about the device."
+    },
+    {
+      "question": "What is an indicator of a bad CMOS battery?",
+      "answer": "inaccurate system date and time",
+      "explanation": "The CMOS battery is responsible for retaining basic information, such as date and time, even when a system is without power. If the CMOS battery is faulty, it may result in inaccurate system date and time."
+    },
+    {
+      "question": "Application crashes are an indicator of problems with what component?",
+      "answer": "memory",
+      "explanation": "Application crashes are often caused by full or failing memory, resulting in the improper running of the application, which causes the application to crash."
+    },
+    {
+      "question": "What is the BSOD?",
+      "answer": "blue screen of death",
+      "explanation": "The blue screen of death is the proprietary error screen of Windows operating systems and is an indication of a potentially fatal error in the system."
+    },
+    {
+      "question": "What should an IT professional use to identify the meaning of specific POST beep codes?",
+      "answer": "vendor documentation",
+      "explanation": "Because beep codes vary by manufacturer, you must refer to the specific vendor documentation to match the code with the corresponding Basic Input/Output System (BIOS) or Unified Extensible Firmware Interface (UEFI) configuration or hardware error."
+    },
+    {
+      "question": "Where would you look if you suspect capacitor swelling?",
+      "answer": "on the motherboard",
+      "explanation": "Capacitors are located on the motherboard and can swell and produce a brownish-red residue when they fail."
+    },
+    {
+      "question": "What is the MBR?",
+      "answer": "master boot record",
+      "explanation": "The master boot record is located on the hard drive and contains the information the computer needs to load the operating system."
+    }
+  ]
+}
