@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "deck_name": "A+ Software Troubleshooting",
+  "cards": [
+    {
+      "question": "If there is no sound coming from your device, what is a quick way to test for an issue with your speakers?",
+      "answer": "Plug in some headphones.",
+      "explanation": "If you are getting audio through your headphones, but the device does not otherwise produce sound, then you probably have a problem with your speakers."
+    },
+    {
+      "question": "How can a user prevent someone from tracking his or her location when using a mobile device?",
+      "answer": "Disable location service on the mobile device.",
+      "explanation": "Cellphones track everywhere you go, storing this for later use. Users should consider disabling location service in the settings of their devices."
+    },
+    {
+      "question": "What tool is available to mobile device users to ensure that applications used are secure?",
+      "answer": "an app scanner",
+      "explanation": "App scanners allow users to see if applications have been successfully used by others and they come from legitimate vendors. Apple iPhone apps, purchased through the Apple store, have been approved by Apple and users can be relatively certain the application is legitimate. However, Android users can purchase apps from third-party vendors, since they are considered open sources. These apps are more likely to be insecure."
+    },
+    {
+      "question": "What can be done to recover a cell phone that appears to be completely locked up?",
+      "answer": "Perform a hard reset of the device.",
+      "explanation": "A hard reset on a cell phone is similar to rebooting a PC.\n\n- On an iPhone, hold down the Power and Home buttons for 10 seconds.\n\n- On a newer version iPhone without a homescreen button, press volume up, press volume down, and press and hold side button for 10 seconds.\n\n- On an Android device, there are numerous ways to perform a hard reset, depending on the model."
+    },
+    {
+      "question": "What is a quick way to check your signal strength and see how fast your Internet connectivity is?",
+      "answer": "Run a speed test.",
+      "explanation": "A speed test is a quick way to see how strong your connection is and to check the bandwidth of that connection. It will show you the exact speeds you are getting for download and upload at that moment in time. It also typically shows ping response times as well."
+    },
+    {
+      "question": "A user purchased a new cell phone and wants to sell his old, used iPhone on the Internet. What precautions should he take before selling his used phone?",
+      "answer": "Perform a factory reset.",
+      "explanation": "Factory reset removes all personal information from the device. Prior to a factory reset, the user should sync the device to either his PC or iCloud."
+    },
+    {
+      "question": "The touch screen on your cell phone is unresponsive. What can you do to resolve this issue?",
+      "answer": "Complete a restart of the device.",
+      "explanation": "Just like a PC, a cell phone needs sufficient system resources to function properly. If there are too many applications launched, they would use up system resources, which could cause the problem. You can resolve this by holding down the power button to restart your device or, depending on the device model, remove the battery."
+    },
+    {
+      "question": "This is the name for an unsolicited e-mail you receive, typically trying to sell a service or product.",
+      "answer": "spam",
+      "explanation": "Consider adding a spam filter to your system to prevent spam e-mail messages."
+    },
+    {
+      "question": "The first step in the best practice procedure for malware removal is to ____.",
+      "answer": "identify malware symptoms",
+      "explanation": "Be able to identify the various symptoms relating to malware. Also be sure to review the seven-step process outlined by CompTIA®."
+    },
+    {
+      "question": "What device provides a data path to USB attached peripherals?",
+      "answer": "USB controller",
+      "explanation": "When a peripheral is attached via USB, the USB controller controls the power supply and the data path to the peripheral. The 2.0 ports can accommodate five concurrent 100 mA loads, while 3.0 can run six 150 mA loads."
+    },
+    {
+      "question": "What Windows command will scan all protected system files and replace any corrupted file?",
+      "answer": "System File Check (SFC)",
+      "explanation": "To run SFC, you will need to be at an elevated command prompt."
+    },
+    {
+      "question": "What is occurring when the RTC on a motherboard begins to shift?",
+      "answer": "time drift",
+      "explanation": "The real-time clock (RTC) is on the motherboard. When the RTC begins to shift or lose time, it is referred to as time drift."
+    },
+    {
+      "question": "What Windows tool provides a comprehensive view of all the different events occurring in the operating system?",
+      "answer": "Event Viewer",
+      "explanation": "Not only does Windows Event Viewer display operating system events, but it also contains logs of various system events for troubleshooting."
+    },
+    {
+      "question": "What is the procedure for entering Safe Mode in Windows 10?",
+      "answer": "Press F8 during system boot.",
+      "explanation": "Safe Mode will boot the system into basic functions and is used for troubleshooting."
+    },
+    {
+      "question": "What is the name of the attack in which malware disguises itself as an antivirus program?",
+      "answer": "Rogue antivirus",
+      "explanation": "Rogue antivirus is an attack in which a piece of malware is disguised as a legitimate antivirus program."
+    },
+    {
+      "question": "What tool is needed to view logs on an iOS device?",
+      "answer": "Xcode",
+      "explanation": "Xcode is a program that is required in order to view logs on an iOS device. Logcat is the equivalent program for Android devices."
+    },
+    {
+      "question": "When an application freezes and will not close, what is one solution that fixes this problem?",
+      "answer": "Kill the task within Task Manager.",
+      "explanation": "If an application freezes or will not close, killing the task from Task Manager is often a quick way to resolve these issues. In order to kill a task, bring up Task Manager and locate the application in question. Once the application is located, click “End Task”."
+    },
+    {
+      "question": "The seventh and final step in the malware removal process is to ____.",
+      "answer": "educate the user",
+      "explanation": "Users are the last line of defense when it comes to computer security. This is because there is no antivirus or spam filter program that is 100% accurate. Even with these items in place, the user should be educated on proper email and Internet usage to avoid getting a malware infection on his or her device. This is the last step of the malware removal process."
+    },
+    {
+      "question": "If a user begins receiving numerous responses from other users regarding emails he doesn’t recall sending, what could this be a sign of?",
+      "answer": "a hijacked email account",
+      "explanation": "If a user is receiving numerous responses from other users regarding email he supposedly sent, but doesn’t recognize, this is a sign that the account has been hijacked. The hijacker will probably have deleted anything from the Sent folder as well to cover their tracks."
+    },
+    {
+      "question": "When evaluating a functionality issue on a computer or mobile device, what is one of the first things you should do when troubleshooting?",
+      "answer": "Reboot the device.",
+      "explanation": "As simple as it sounds, simply turning the device off and rebooting will fix many common functionality issues on both desktop computers and mobile devices."
+    }
+  ]
+}
