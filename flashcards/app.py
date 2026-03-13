@@ -27,7 +27,7 @@ class FlashcardApp:
     def __init__(self, root: tk.Tk, base_dir: Path) -> None:
         self.root = root
         self.root.title("Flashcard App")
-        self.root.geometry("760x500")
+        self.root.geometry("760x775")
         self.root.minsize(680, 420)
         self.dark_mode_enabled = False
         self.theme_colors = self.LIGHT_THEME
