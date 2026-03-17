@@ -20,17 +20,37 @@ def show_create_cards_screen(app) -> None:
     topic_entry = ttk.Entry(form, textvariable=topic_var, width=60)
     topic_entry.grid(row=0, column=1, sticky="ew", pady=6)
 
-    ttk.Label(form, text="Question (max 500 chars):", style="Header.TLabel").grid(row=1, column=0, sticky="nw", pady=6)
+    ttk.Label(form, text="Use Existing Deck:", style="Header.TLabel").grid(row=1, column=0, sticky="w", pady=6)
+    existing_deck_var = tk.StringVar(value="")
+    existing_deck_values = [""] + [display_name for _, display_name in app.storage.list_deck_entries()]
+    existing_deck_menu = ttk.Combobox(
+        form,
+        textvariable=existing_deck_var,
+        values=existing_deck_values,
+        state="readonly",
+        width=58,
+    )
+    existing_deck_menu.grid(row=1, column=1, sticky="ew", pady=6)
+    existing_deck_menu.set("")
+
+    def apply_existing_deck_name(_event: tk.Event[tk.Misc] | None = None) -> None:
+        selected_name = existing_deck_var.get().strip()
+        if selected_name:
+            topic_var.set(selected_name)
+
+    existing_deck_menu.bind("<<ComboboxSelected>>", apply_existing_deck_name)
+
+    ttk.Label(form, text="Question (max 500 chars):", style="Header.TLabel").grid(row=2, column=0, sticky="nw", pady=6)
     question_entry = app._create_limited_textbox(form)
-    question_entry.grid(row=1, column=1, sticky="ew", pady=6)
+    question_entry.grid(row=2, column=1, sticky="ew", pady=6)
 
-    ttk.Label(form, text="Answer (max 500 chars):", style="Header.TLabel").grid(row=2, column=0, sticky="nw", pady=6)
+    ttk.Label(form, text="Answer (max 500 chars):", style="Header.TLabel").grid(row=3, column=0, sticky="nw", pady=6)
     answer_entry = app._create_limited_textbox(form)
-    answer_entry.grid(row=2, column=1, sticky="ew", pady=6)
+    answer_entry.grid(row=3, column=1, sticky="ew", pady=6)
 
-    ttk.Label(form, text="Explanation (optional, max 1000 chars):", style="Header.TLabel").grid(row=3, column=0, sticky="nw", pady=6)
+    ttk.Label(form, text="Explanation (optional, max 1000 chars):", style="Header.TLabel").grid(row=4, column=0, sticky="nw", pady=6)
     explanation_entry = app._create_limited_textbox(form, max_chars=1000)
-    explanation_entry.grid(row=3, column=1, sticky="ew", pady=6)
+    explanation_entry.grid(row=4, column=1, sticky="ew", pady=6)
 
     form.columnconfigure(1, weight=1)
 
